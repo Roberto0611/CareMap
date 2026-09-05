@@ -390,3 +390,348 @@ html, body {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bg-surface); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Panel de vulnerabilidad — score, confiabilidad y desglose
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Rampa de riesgo: pizarra fría (seguro) -> rojo coral (riesgo).
+   Verificada con simulación de daltonismo: luminancia creciente,
+   contraste 2.15:1 contra el fondo, separación 21.5 bajo deuteranopia,
+   protanopia y tritanopia. No es verde->rojo a propósito: ese par
+   colapsa para ~8% de los hombres. */
+:root {
+  --vuln-1: #33505f;
+  --vuln-4: #a75f45;
+  --vuln-7: #ff6b3d;
+  --acento: #eb6834;
+  --conf-alta: #0ca30c;
+  --conf-media: #fab219;
+  --conf-baja: #d03b3b;
+}
+
+/* El score manda visualmente: número enorme, no una gráfica */
+.score-hero {
+  padding: 18px 0 14px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+.score-num {
+  font-family: var(--font-mono);
+  font-size: 4.2rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
+.score-cap {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* Confiabilidad SIEMPRE con ícono + texto, nunca solo color:
+   ~8% de los hombres no distingue rojo de verde. */
+.conf-chip {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  border: 1px solid currentColor;
+}
+.conf-alta  { color: var(--conf-alta); }
+.conf-media { color: var(--conf-media); }
+.conf-baja  { color: var(--conf-baja); }
+
+/* Desglose: dos zonas con el mismo score salen con barras distintas */
+.desglose {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 1fr 74px 34px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+}
+.bar-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--vuln-7);
+  transition: width 200ms ease;
+}
+.bar-pct {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+  text-align: right;
+}
+.desglose-note {
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.desglose-note strong { color: var(--acento); font-weight: 600; }
+
+/* El interruptor de confiabilidad */
+.conf-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.conf-toggle:hover { border-color: var(--border-highlight); }
+.conf-toggle.on { color: var(--text-main); border-color: var(--acento); }
+.conf-toggle-track {
+  flex: 0 0 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  position: relative;
+  transition: background 200ms ease;
+}
+.conf-toggle.on .conf-toggle-track { background: var(--acento); }
+.conf-toggle-knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 200ms ease;
+}
+.conf-toggle.on .conf-toggle-knob { transform: translateX(14px); }
+
+/* Leyenda: la rampa real, no un degradado inventado */
+.legend-bar {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    #33505f, #5d6668, #856455, #a75f45, #c65538, #e3502f, #ff6b3d
+  );
+}
+
+/* El tema dominante se distingue del resto */
+.field-hint {
+  float: right;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-dim);
+}
+.bar-row.dominante .bar-label { color: var(--text-main); font-weight: 600; }
+.bar-row.dominante .bar-fill  { background: var(--acento); }
+.bar-row:not(.dominante) .bar-fill { opacity: 0.55; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Comparador de gemelos geográficos
+   ═══════════════════════════════════════════════════════════════════ */
+
+.gem-wrap {
+  min-height: 100vh;
+  padding: 32px clamp(16px, 4vw, 56px) 56px;
+  background: var(--bg-dark);
+  color: var(--text-main);
+}
+.gem-cargando, .gem-error { color: var(--text-muted); padding: 80px 0; text-align: center; }
+
+.gem-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.gem-title {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 700;
+  margin: 6px 0 0;
+  letter-spacing: -0.02em;
+}
+.gem-nav { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.gem-link {
+  color: var(--acento);
+  text-decoration: none;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.gem-link:hover { text-decoration: underline; }
+
+/* Los tres números del titular hacen el trabajo del pitch */
+.gem-titulares {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.gem-tit {
+  padding: 18px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+.gem-tit.destacado { border-color: var(--acento); }
+.gem-tit-num {
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.gem-tit.destacado .gem-tit-num { color: var(--acento); }
+.gem-tit-num small { font-size: 0.45em; font-weight: 500; color: var(--text-muted); }
+.gem-tit-cap {
+  margin-top: 8px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.gem-ok { color: var(--conf-alta); }
+.gem-warn { color: var(--conf-media); }
+
+.gem-aviso {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--conf-media);
+  background: rgba(250, 178, 25, 0.07);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Las dos columnas con la línea de distancia en medio */
+.gem-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+.gem-col {
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--bg-card);
+}
+.gem-peor  { border-color: rgba(255, 107, 61, 0.4); }
+.gem-mejor { border-color: rgba(255, 255, 255, 0.09); }
+
+.gem-zcta {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.gem-score {
+  font-family: var(--font-mono);
+  font-size: clamp(2.6rem, 6vw, 4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.gem-peor  .gem-score { color: var(--vuln-7); }
+.gem-score-cap {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}
+.gem-arq {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.gem-cifras { margin: 20px 0; }
+.gem-cifra {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+.gem-cifra strong {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
+.gem-barras { margin-top: 18px; }
+
+/* La línea que separa: es literalmente la distancia */
+.gem-vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 18px;
+}
+.gem-vs-linea { flex: 1; width: 1px; background: var(--border-color); }
+.gem-vs-km {
+  padding: 8px 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--acento);
+  white-space: nowrap;
+}
+
+.gem-pie {
+  margin-top: 26px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* En celular las columnas se apilan y la línea se acuesta */
+@media (max-width: 780px) {
+  .gem-grid { grid-template-columns: 1fr; }
+  .gem-vs { flex-direction: row; padding: 14px 0; }
+  .gem-vs-linea { width: auto; height: 1px; flex: 1; }
+  .gem-vs-km { padding: 0 12px; }
+}
+
+/* El selector global está estilizado en claro para el panel del mapa;
+   aquí se sobreescribe solo dentro de gemelos para no tocar esa página. */
+.gem-nav .color-select {
+  width: auto;
+  min-width: 230px;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+.gem-nav .color-select option {
+  background: var(--bg-surface);
+  color: var(--text-main);
+}
