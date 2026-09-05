@@ -159,17 +159,8 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 ---
 
-## 📄 Licencia
-
-Este proyecto fue desarrollado para el **Data Rush 2025**.
-
-```
-MIT License
-Copyright (c) 2025 CareMap (DataRush) Team
-```
-
 <p align="center">
   <strong>Desarrollado con ❤️</strong>
   <br>
-  <sub>Data Rush 2025 | Data Science Club at Tec</sub>
+  <sub>Data Rush 2026 | Data Science Club at Tec</sub>
 </p>
