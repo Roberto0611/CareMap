@@ -644,7 +644,6 @@ export default function MapPage() {
     (abbr: string | null) => {
       setActiveState(abbr);
       setSelected(null);
-      setSearchVal('');
 
       if (!abbr) {
         // Go to national view
