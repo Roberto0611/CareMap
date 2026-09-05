@@ -1,8 +1,8 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, height=1080" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <style>
       * {
@@ -16,44 +16,38 @@
         width: 1920px;
         height: 1080px;
         overflow: hidden;
-        background: #000;
+        background: #05080d;
       }
-      body {
-        font-family: "Inter", sans-serif;
-      }
-      code,
-      pre,
-      .monospace {
-        font-family: "JetBrains Mono", monospace;
+      /* Orquestador delgado: cada escena es una sub-composición.
+         Toda la animación vive dentro de compositions/frames/*.html */
+      [data-composition-id="main"] > div[data-composition-src] {
+        position: absolute;
+        inset: 0;
       }
     </style>
   </head>
   <body>
-    <div
-      id="root"
-      data-composition-id="main"
-      data-start="0"
-      data-duration="10"
-      data-width="1920"
-      data-height="1080"
-    >
-      
-      
+    <div data-hf-id="hf-qbnw" id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+      <!-- Escena 1 — El gancho (0:00–0:20). Ver STORYBOARD.md § Frame 01. -->
+      <div data-hf-id="hf-tlbz" id="el-01-gancho" data-composition-id="gancho" data-composition-src="compositions/frames/01-gancho.html" data-start="0" data-duration="20" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 2 — El problema (0:20–0:45). Ver STORYBOARD.md § Frame 02. -->
+      <div data-hf-id="hf-ohow" id="el-02-problema" data-composition-id="problema" data-composition-src="compositions/frames/02-problema.html" data-start="20" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 3 — Presentamos la herramienta (0:45–1:00). Ver STORYBOARD.md § Frame 03. -->
+      <div data-hf-id="hf-hggb" id="el-03-titulo" data-composition-id="titulo" data-composition-src="compositions/frames/03-titulo.html" data-start="45" data-duration="15" data-track-index="1" data-width="1920" data-height="1080"></div>
 
       <!--
-        Add your clips here. Example:
-        <div id="title" class="clip" data-start="0" data-duration="5" data-track-index="1"
-             style="font-size: 64px; color: #fff; padding: 40px">
-          Hello World
-        </div>
+        Próximas escenas, en orden (ver STORYBOARD.md):
+        04..06 — metraje real, pendientes de grabación
+        07-cierre.html      data-start="…"  data-duration="25"
       -->
     </div>
 
     <script>
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true });
-      // Example: tl.from("#title", { opacity: 0, y: -50, duration: 1 }, 0);
-      window.__timelines["main"] = tl;
+      // Root casi vacío a propósito: toda la animación vive en las sub-comps.
+      window.__timelines["main"] = gsap.timeline({ paused: true });
     </script>
   </body>
 </html>

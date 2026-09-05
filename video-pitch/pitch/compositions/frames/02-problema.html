@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- Escena 2 — El problema. Ver STORYBOARD.md § Frame 02 y design.md
+         § "Dirección visual — informe de agencia". Misma figura de reporte
+         que la escena 1: continúa la numeración (FIG. 02), mismos paneles
+         planos separados por regla, mismo acento usado una sola vez. -->
+  </head>
+  <body>
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          font-family: "Montserrat", sans-serif;
+          overflow: hidden;
+        }
+
+        .grid-bg {
+          position: absolute;
+          inset: 0;
+          background-image:
+            repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 96px),
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 96px);
+        }
+
+        .fig-head {
+          position: absolute;
+          top: 64px;
+          left: 96px;
+          z-index: 3;
+        }
+        .fig-num {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 20px;
+          letter-spacing: 0.1em;
+          color: #78818d;
+        }
+        .fig-title {
+          font-family: "Montserrat", sans-serif;
+          font-weight: 700;
+          font-size: 26px;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: #f0f6ff;
+          margin-top: 6px;
+          max-width: 900px;
+        }
+        .fig-rule {
+          width: 340px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.22);
+          margin-top: 16px;
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+
+        /* Encabezado explicativo — una sola línea, cuerpo de texto normal,
+           no un titular grande. Es contexto, no el dato. */
+        .lede {
+          position: absolute;
+          top: 220px;
+          left: 96px;
+          right: 96px;
+          font-size: 25px;
+          line-height: 1.5;
+          color: #c7ccd6;
+          max-width: 1280px;
+          z-index: 2;
+          opacity: 0;
+        }
+        .lede strong {
+          color: #f0f6ff;
+          font-weight: 700;
+        }
+
+        /* Tres columnas de reporte, separadas por una regla — no tarjetas
+           flotantes. La estructura ES la tabla de un reporte técnico. */
+        .stats {
+          position: absolute;
+          left: 96px;
+          right: 96px;
+          bottom: 152px;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1px;
+          background: rgba(255, 255, 255, 0.14);
+        }
+        .stat {
+          background: #05080d;
+          padding: 0 48px 0 0;
+        }
+        .stat:first-child { padding-left: 0; }
+        .stat + .stat { padding-left: 48px; }
+
+        .stat-label {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 16px;
+          letter-spacing: 0.08em;
+          color: #78818d;
+        }
+        .stat-num {
+          font-family: "JetBrains Mono", monospace;
+          font-variant-numeric: tabular-nums;
+          font-weight: 700;
+          font-size: 108px;
+          line-height: 1.05;
+          color: #f0f6ff;
+          margin-top: 8px;
+          white-space: nowrap;
+        }
+        /* El acento se usa UNA vez en toda la escena: en la cifra que más
+           importa (la que anticipa el interruptor de confiabilidad). */
+        .stat-accent .stat-num { color: #ff6b3d; }
+        .stat-accent .stat-rule { background: #ff6b3d; }
+
+        .stat-rule {
+          width: 56px;
+          height: 3px;
+          background: rgba(255, 255, 255, 0.3);
+          margin-top: 18px;
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+        .stat-cap {
+          font-size: 19px;
+          line-height: 1.4;
+          color: #c7ccd6;
+          margin-top: 14px;
+          max-width: 30ch;
+        }
+
+        .credit {
+          position: absolute;
+          bottom: 24px;
+          left: 96px;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 15px;
+          letter-spacing: 0.06em;
+          color: #78818d;
+          z-index: 3;
+        }
+      </style>
+
+      <div data-hf-id="hf-6ajs" id="root" data-composition-id="problema" data-width="1920" data-height="1080" data-duration="25">
+        <div data-hf-id="hf-g2iq" class="grid-bg" id="grid-bg"></div>
+
+        <div data-hf-id="hf-p1ex" class="fig-head">
+          <div data-hf-id="hf-8mv9" class="fig-num">FIG. 02</div>
+          <div data-hf-id="hf-hozs" class="fig-title" id="fig-title">Por qué no basta un promedio estatal</div>
+          <div data-hf-id="hf-19gm" class="fig-rule" id="fig-rule"></div>
+        </div>
+
+        <div data-hf-id="hf-06ms" class="lede" id="lede">
+          Hoy, el presupuesto de salud pública se reparte con
+          <strong data-hf-id="hf-tv9p">promedios de estado o de condado</strong>.
+        </div>
+
+        <div data-hf-id="hf-qn8o" class="stats" id="stats">
+          <div data-hf-id="hf-u0e8" class="stat" id="stat-1">
+            <div data-hf-id="hf-v2k7" class="stat-label">ZCTA ANALIZADOS</div>
+            <div data-hf-id="hf-rmtp" class="stat-num" id="num-1">0</div>
+            <div data-hf-id="hf-yief" class="stat-rule" id="rule-1"></div>
+            <div data-hf-id="hf-wmdq" class="stat-cap">códigos postales con dato social y de salud verificado</div>
+          </div>
+          <div data-hf-id="hf-4vvv" class="stat" id="stat-2">
+            <div data-hf-id="hf-orwt" class="stat-label">VARIACIÓN INTRAESTATAL</div>
+            <div data-hf-id="hf-huij" class="stat-num" id="num-2">0%</div>
+            <div data-hf-id="hf-puik" class="stat-rule" id="rule-2"></div>
+            <div data-hf-id="hf-i42y" class="stat-cap">de la variación en pobreza ocurre dentro de un mismo estado</div>
+          </div>
+          <div data-hf-id="hf-mv1f" class="stat stat-accent" id="stat-3">
+            <div data-hf-id="hf-i19k" class="stat-label">ESTIMACIONES NO CONFIABLES</div>
+            <div data-hf-id="hf-kime" class="stat-num" id="num-3">0%</div>
+            <div data-hf-id="hf-qm6d" class="stat-rule" id="rule-3"></div>
+            <div data-hf-id="hf-kr8c" class="stat-cap">tienen un margen de error mayor a la mitad de su valor</div>
+          </div>
+        </div>
+
+        <div data-hf-id="hf-dugg" class="credit">Fuente: ACS 2017–2021 · CDC PLACES 2020</div>
+      </div>
+
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        function countUp(id, target, start, dur, at, suffix) {
+          const el = document.getElementById(id);
+          const state = { v: 0 };
+          tl.to(
+            state,
+            {
+              v: target,
+              duration: dur,
+              ease: "power1.out",
+              onUpdate: () => {
+                const val = target % 1 === 0 ? Math.round(state.v) : state.v.toFixed(1);
+                el.textContent = val.toLocaleString("es-MX") + (suffix || "");
+              },
+            },
+            at
+          );
+        }
+
+        // ── Cabecera de figura ──
+        tl.fromTo(
+          ".fig-num, .fig-title",
+          { opacity: 0, x: -14 },
+          { opacity: 1, x: 0, duration: 0.45, ease: "power3.out", stagger: 0.08 },
+          0.15
+        );
+        tl.to("#fig-rule", { scaleX: 1, duration: 0.5, ease: "power2.out" }, 0.5);
+
+        // ── Frase de contexto: el statu quo ──
+        tl.fromTo("#lede", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.0);
+
+        // ── Columna 1: escala del proyecto (contexto, no crítica) ──
+        tl.fromTo("#stat-1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 3.4);
+        countUp("num-1", 31742, 0, 0.9, 3.4);
+        tl.to("#rule-1", { scaleX: 1, duration: 0.35, ease: "power2.out" }, 4.1);
+
+        // ── Columna 2: la variación intraestatal ──
+        tl.fromTo("#stat-2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 9.0);
+        countUp("num-2", 88, 0, 0.8, 9.0, "%");
+        tl.to("#rule-2", { scaleX: 1, duration: 0.35, ease: "power2.out" }, 9.6);
+
+        // ── Columna 3: la cifra que importa — único uso del acento ──
+        tl.fromTo("#stat-3", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 14.5);
+        countUp("num-3", 18.8, 0, 0.8, 14.5, "%");
+        tl.to("#rule-3", { scaleX: 1, duration: 0.35, ease: "power2.out" }, 15.1);
+
+        // ── Único movimiento ambiental: la retícula respira, igual que en FIG. 01 ──
+        tl.fromTo(
+          "#grid-bg",
+          { backgroundPosition: "0px 0px" },
+          { backgroundPosition: "12px 12px", duration: 23, ease: "none" },
+          0
+        );
+
+        window.__timelines["problema"] = tl;
+      </script>
+    </template>
+  </body>
+</html>
