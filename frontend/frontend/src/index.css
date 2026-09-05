@@ -326,7 +326,6 @@ html, body {
   position: absolute;
   top: 14px; right: 16px;
   z-index: 50;
-<<<<<<< HEAD
   width: 295px;
   max-height: calc(100vh - 95px);
   overflow-y: auto;
@@ -351,29 +350,7 @@ html, body {
 .inspector::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
-=======
-  width: 330px;
-  /* El contenido varía por zona (desglose, residual, indicadores), así que
-     el panel se limita a la altura visible y hace scroll en vez de salirse. */
-  max-height: calc(100% - 32px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--panel-bg);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--panel-line);
-  border-radius: var(--radio); padding: 18px 20px;
-  animation: slideIn 0.2s ease;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.18) transparent;
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
-.inspector::-webkit-scrollbar { width: 8px; }
-.inspector::-webkit-scrollbar-track { background: transparent; }
-.inspector::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.16);
-  border-radius: 4px;
-}
-.inspector::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(14px); }
@@ -382,7 +359,6 @@ html, body {
 
 .inspector-head {
   display: flex; align-items: flex-start; justify-content: space-between;
-<<<<<<< HEAD
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 10px;
@@ -394,38 +370,15 @@ html, body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.45);
-=======
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 14px;
-  /* Al hacer scroll dentro del panel, el nombre de la zona y el botón de
-     cerrar se quedan a la vista: si no, se pierde de qué zona se está viendo. */
-  position: sticky;
-  top: -18px;
-  z-index: 1;
-  margin-top: -18px;
-  padding-top: 18px;
-  background: var(--panel-bg);
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 
-/* Identidad de la zona en monoespaciada plana. El cian con resplandor que
-   había antes es un efecto decorativo: llama más la atención que el dato. */
 .zcta-badge {
-<<<<<<< HEAD
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-sans);
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff;
   text-shadow: none;
-=======
-  font-family: var(--font-mono);
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--text-main);
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 
 .close-btn {
@@ -446,33 +399,15 @@ html, body {
   color: #ffffff;
 }
 
-<<<<<<< HEAD
 .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .prop-item {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 7px 10px;
-=======
-/* Etiqueta a la izquierda, valor a la derecha, separados por un filete.
-   Antes cada dato vivía en su propia cajita redondeada dentro del panel
-   redondeado: cajas dentro de cajas, que llena la pantalla de bordes y
-   dificulta comparar los valores entre sí. */
-.prop-grid { display: block; }
-.prop-item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--panel-line);
-  background: none;
-  border-radius: 0;
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
-.prop-grid .prop-item:last-child { border-bottom: none; }
+.prop-item.full { grid-column: span 2; }
 .prop-key {
-<<<<<<< HEAD
   font-size: 0.58rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.4);
@@ -485,18 +420,6 @@ html, body {
   color: #ffffff;
   margin-top: 2px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-sans);
-=======
-  font-size: 0.78rem; font-weight: 400;
-  color: var(--text-muted);
-  text-transform: none; letter-spacing: 0;
-}
-.prop-val {
-  font-size: 0.86rem; font-weight: 500;
-  color: var(--text-main); margin-top: 0;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 
 /* ── Tooltip ─────────────────────────────────────────────────── */
@@ -562,11 +485,6 @@ html, body {
    Panel de vulnerabilidad — score, confiabilidad y desglose
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Rampa de riesgo: pizarra fría (seguro) -> rojo coral (riesgo).
-   Verificada con simulación de daltonismo: luminancia creciente,
-   contraste 2.15:1 contra el fondo, separación 21.5 bajo deuteranopia,
-   protanopia y tritanopia. No es verde->rojo a propósito: ese par
-   colapsa para ~8% de los hombres. */
 :root {
   --vuln-1: #33505f;
   --vuln-4: #a75f45;
@@ -577,7 +495,6 @@ html, body {
   --conf-baja: #d03b3b;
 }
 
-<<<<<<< HEAD
 /* El score manda visualmente: número grande y limpio estilo Apple */
 .score-hero {
   padding: 10px 0 10px;
@@ -591,24 +508,9 @@ html, body {
   line-height: 1;
   letter-spacing: -0.03em;
   color: #ffffff;
-=======
-/* El score manda visualmente: número enorme, no una gráfica */
-/* El score se lee como una cifra de reporte, no como un widget centrado. */
-.score-hero {
-  padding: 16px 0 14px;
-  border-bottom: 1px solid var(--panel-line);
-}
-.score-num {
-  font-family: var(--font-mono);
-  font-size: 3.4rem;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.02em;
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
   font-variant-numeric: tabular-nums;
 }
 .score-cap {
-<<<<<<< HEAD
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -631,35 +533,6 @@ html, body {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: rgba(255, 255, 255, 0.88);
-=======
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  margin-top: 6px;
-}
-
-/* Confiabilidad SIEMPRE con ícono + texto, nunca solo color:
-   ~8% de los hombres no distingue rojo de verde. */
-/* Estado como línea con marcador, no como pastilla: las pastillas de
-   colores son lenguaje de app de consumo, no de instrumento de trabajo. */
-.conf-chip {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 12px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-  border: none;
-  padding: 0;
-}
-.conf-chip::before {
-  content: '';
-  width: 7px; height: 7px;
-  background: currentColor;
-  flex: 0 0 auto;
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 .conf-alta  { border-color: rgba(255, 255, 255, 0.3); }
 .conf-media { border-color: rgba(255, 255, 255, 0.18); }
@@ -683,29 +556,15 @@ html, body {
 }
 .bar-track {
   height: 5px;
-<<<<<<< HEAD
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
-=======
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.07);
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
   overflow: hidden;
 }
-/* El color lo pone el componente con colorVulnerabilidad(): así una barra
-   en el percentil 5 sale pizarra y una en el 98 sale coral, igual que en el
-   mapa. Antes todas eran coral y solo cambiaba el largo, lo que pintaba de
-   rojo hasta los perfiles sanos. */
 .bar-fill {
   height: 100%;
-<<<<<<< HEAD
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.4);
   transition: width 200ms ease;
-=======
-  border-radius: 2px;
-  transition: width 200ms ease, background 200ms ease;
->>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 .bar-row.dominante .bar-fill {
   background: #ffffff;
