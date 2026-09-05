@@ -3,9 +3,9 @@
 03_enrich_geojson.py — Pega el score a la geometría
 ====================================================
 
-Entrada:  frontend/frontend/public/mapa/zcta_simple.geojson  (geometría cruda)
+Entrada:  data/zcta_simple.geojson                           (geometría cruda)
           data/zcta_scored.parquet                           (salida de 02_score.py)
-Salida:   frontend/frontend/public/mapa/zcta_data.geojson    (geometría + datos)
+Salida:   data/zcta_data.geojson  -> lo consume 04_topojson.py
 
 Por qué así
 -----------
@@ -40,9 +40,9 @@ except Exception:  # noqa: BLE001
     pass
 
 ROOT = Path(__file__).resolve().parent.parent
-GEO_IN = ROOT / "frontend" / "frontend" / "public" / "mapa" / "zcta_simple.geojson"
+GEO_IN = ROOT / "data" / "zcta_simple.geojson"
 SCORED = ROOT / "data" / "zcta_scored.parquet"
-GEO_OUT = ROOT / "frontend" / "frontend" / "public" / "mapa" / "zcta_data.geojson"
+GEO_OUT = ROOT / "data" / "zcta_data.geojson"
 
 # Lo único que sobrevive de properties (además de lo que agregamos)
 

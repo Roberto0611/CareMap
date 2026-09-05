@@ -1,0 +1,16 @@
+.claude/settings.local.json
+
+# Node
+node_modules/
+dist/
+
+# Derivados del pipeline: se regeneran corriendo pipeline/*.py en orden.
+# No tiene caso versionar 45 MB que salen de los CSV que sí están versionados.
+data/zcta_master_analytical.csv
+data/zcta_master_analytical.parquet
+data/zcta_scored.parquet
+data/zcta_scored.json
+data/zcta_data.geojson
+analitica_zcta.parquet
+residuales.parquet
+web_payload.parquet

@@ -168,12 +168,46 @@ Cada golpe monta sobre el anterior.
 
 ```
 datarush-3/
-├── pipeline/      Python. Corre UNA vez. Toda la inteligencia.
-├── web/           Dashboard estático. Sin servidor.
-│   └── datos.json 1 MB — TODO EE.UU.
-├── api/           FastAPI. ~30 líneas. Solo esconde la llave del LLM.
-└── README.md
+├── etl_zcta_unify.py          ①  4 CSVs -> zcta_master_analytical.parquet
+├── pipeline/
+│   ├── 02_score.py            ②③④ score, confiabilidad, desglose
+│   ├── 03_enrich_geojson.py   pega score+confiabilidad a la geometría
+│   └── 04_topojson.py         geojson -> topojson (tarda ~3 min)
+├── data/                      fuentes + derivados (los derivados en .gitignore)
+├── frontend/frontend/         React 19 + Vite + TS + deck.gl
+│   ├── public/mapa/zcta_data.topojson    <- lo que sirve el mapa
+│   ├── public/datos/zcta_scored.json     <- detalle del panel
+│   └── src/pages/MapPage.tsx
+└── api/                       FastAPI. ~30 líneas. (pendiente)
 ```
+
+**Orden para regenerar todo desde cero:**
+```
+python etl_zcta_unify.py
+python pipeline/02_score.py
+python pipeline/03_enrich_geojson.py
+python pipeline/04_topojson.py       # ~3 min
+cp data/zcta_scored.json frontend/frontend/public/datos/
+```
+
+### Peso de lo que descarga el juez (medido, comprimido)
+
+| Archivo | En disco | Comprimido |
+|---|---|---|
+| `zcta_data.topojson` | 9.6 MB | **2.63 MB** |
+| `zcta_scored.json` | 3.2 MB | **1.09 MB** |
+| `zcta_state_map.json` | 0.4 MB | 0.08 MB |
+| | | **≈ 3.8 MB total** |
+
+> Antes eran 4.72 MB solo del geojson. TopoJSON guarda cada frontera compartida
+> una vez en vez de dos (33,790 zonas → 101,177 arcos) y cuantiza las coordenadas.
+> **Simplificar más la geometría NO ayuda** — se probó con varios epsilon y el
+> archivo se movía 0.01 MB; la fuente ya viene simplificada (mediana 22 vértices
+> por polígono). Todo el ahorro está en la topología.
+
+> ⚠️ El geojson fuente (`data/zcta_simple.geojson`, 25 MB) y el intermedio
+> (`data/zcta_data.geojson`, 19 MB) **no van en `public/`** — si están ahí, Vite
+> los sirve y el juez se los descarga sin necesidad.
 
 | Pieza | Con qué | Por qué |
 |---|---|---|
