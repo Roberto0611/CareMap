@@ -27,12 +27,13 @@
 
 ## 📹 Video Demo
 
-[![Ver Demo en Drive](docs/images/video-thumbnail.png)](https://example.com/demo-link)
+[**▶ Ver video pitch en Google Drive**](https://drive.google.com/file/d/11GQHL0eGe9FsgEzhc4RI7U5ZWXUv4fDb/view?usp=sharing)
 
-[Enlace al video pitch](https://example.com/demo-link)
-**Duración:** 5:00 minutos | **Idioma:** Español
+El video también está incluido en el repositorio: [`VIDEO_CAREMAP.mp4`](VIDEO_CAREMAP.mp4)
 
-> 💡 **Nota:** El video incluye la demostración de la arquitectura interactiva, el algoritmo de asignación y nuestro agente de IA "Cloudy".
+**Idioma:** Español
+
+> 💡 **Nota:** El video incluye la demostración de la arquitectura interactiva, el algoritmo de asignación, la comparativa de gemelos estadísticos y nuestro agente de IA "Cloudy".
 
 ---
 
