@@ -150,6 +150,16 @@ THEMES: dict[str, list[str]] = {
 # de una comunidad son contexto, no algo que un programa vaya a cambiar.
 THEMES_ACCIONABLES = [t for t in THEMES if t != "Perfil demográfico"]
 
+# Nombre de columna por tema. Orden fijo para que el panel siempre muestre
+# las mismas cinco barras en el mismo lugar y dos zonas sean comparables.
+THEME_COL = {
+    "Socioeconómico":          "t_socioeco",
+    "Vivienda y conectividad": "t_vivienda",
+    "Acceso a atención":       "t_acceso",
+    "Carga de enfermedad":     "t_enfermedad",
+    "Conductas de riesgo":     "t_conductas",
+}
+
 
 def log(msg: str) -> None:
     print(f"  ▸ {msg}")
@@ -248,43 +258,47 @@ def main() -> int:
     # ═════════════════════════════════════════════════════════════════
     section("④ Desglose (top 4 factores por zona)")
 
-    # Contribución = qué tanto empuja cada tema el score hacia arriba.
-    # Se mide sobre el excedente por encima de la mediana (percentil 50):
-    # un indicador en el percentil 50 no está causando nada.
-    excess = (pct_df - 50).clip(lower=0)
-
-    theme_excess = pd.DataFrame(
+    # Cada tema se mide contra SU PROPIA distribución nacional.
+    #
+    # Antes se promediaba cuánto se pasaba cada indicador de la mediana, y eso
+    # castigaba a los temas amplios: "Carga de enfermedad" tiene 12 indicadores,
+    # así que un par de valores normales le hundían el promedio aunque la zona
+    # estuviera en el percentil 99 de cinco enfermedades a la vez. Es como
+    # comparar el promedio de un alumno con 3 materias contra uno con 12.
+    #
+    # Al volver a rankear el tema entre las 31,742 zonas, el número de
+    # indicadores dentro del tema deja de importar.
+    theme_raw = pd.DataFrame(
         {
-            name: excess[[m for m in THEMES[name] if m in excess.columns]].mean(axis=1)
+            name: pct_df[[m for m in THEMES[name] if m in pct_df.columns]].mean(axis=1)
             for name in THEMES_ACCIONABLES
         },
         index=df.index,
     )
+    theme_pct = theme_raw.rank(pct=True) * 100
 
-    arr = np.nan_to_num(theme_excess.to_numpy())
-    names = np.array(theme_excess.columns)
-    tot = arr.sum(axis=1)
-    order = np.argsort(-arr, axis=1)[:, :4]
+    # Orden FIJO de columnas: así, al comparar dos zonas, las barras se quedan
+    # en su lugar y se puede leer la diferencia de forma (clave para gemelos).
+    for name in THEMES_ACCIONABLES:
+        df[THEME_COL[name]] = theme_pct[name].round(1)
 
-    for i in range(4):
-        idx = order[:, i]
-        vals = arr[np.arange(len(arr)), idx]
-        ok = (tot > 0) & (vals > 0)
-        df[f"factor{i + 1}"] = np.where(ok, names[idx], None)
-        df[f"factor{i + 1}_pct"] = np.where(ok, np.round(vals / np.where(tot > 0, tot, 1) * 100, 1), 0.0)
+    # Titular: el tema más alto y, dentro de él, el indicador que manda
+    arr = np.nan_to_num(theme_pct.to_numpy())
+    names = np.array(theme_pct.columns)
+    top_idx = np.argmax(arr, axis=1)
+    df["factor1"] = names[top_idx]
+    df["factor1_pct"] = np.round(arr[np.arange(len(arr)), top_idx], 1)
 
-    # Dentro del tema dominante, cuál indicador manda -> "sobre todo: sin seguro médico"
-    top_theme = names[order[:, 0]]
     detail = []
-    ex = excess.fillna(0)
-    for row, theme in zip(range(len(df)), top_theme):
-        members = [m for m in THEMES[theme] if m in ex.columns]
-        vals = ex.iloc[row][members]
-        detail.append(LABELS.get(vals.idxmax(), None) if vals.max() > 0 else None)
+    p = pct_df.fillna(0)
+    for row, theme in enumerate(names[top_idx]):
+        members = [m for m in THEMES[theme] if m in p.columns]
+        vals = p.iloc[row][members]
+        detail.append(LABELS.get(vals.idxmax(), None) if vals.max() > 50 else None)
     df["factor1_detalle"] = detail
 
-    log("tema principal más común:")
-    for k, v in df.factor1.value_counts().head(6).items():
+    log("tema dominante más común:")
+    for k, v in df.factor1.value_counts().items():
         log(f"   {k}: {v:,} zonas")
 
     # ═════════════════════════════════════════════════════════════════
@@ -296,8 +310,8 @@ def main() -> int:
         "zcta", "latitude", "longitude", "county_name", "state_abbr", "state_name",
         "poblacion", "score", "score_social", "score_salud",
         "confiabilidad", "n_ruido",
-        "factor1", "factor1_pct", "factor2", "factor2_pct",
-        "factor3", "factor3_pct", "factor4", "factor4_pct", "factor1_detalle",
+        "factor1", "factor1_pct", "factor1_detalle",
+        *THEME_COL.values(),
         # indicadores destacados para el panel / tooltip
         "POV150_value", "ACCESS2_CrudePrev", "DIABETES_CrudePrev",
         "OBESITY_CrudePrev", "MHLTH_CrudePrev", "CSMOKING_CrudePrev",

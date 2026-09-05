@@ -27,9 +27,13 @@ interface ZCTADetail {
   confiabilidad: string | null;
   factor1: string | null;   factor1_pct: number | null;
   factor1_detalle: string | null;
-  factor2: string | null;   factor2_pct: number | null;
-  factor3: string | null;   factor3_pct: number | null;
-  factor4: string | null;   factor4_pct: number | null;
+  // Percentil nacional de cada tema (0-100). Orden fijo: al comparar dos
+  // zonas las barras se quedan en su lugar y se lee la diferencia de forma.
+  t_socioeco: number | null;
+  t_vivienda: number | null;
+  t_acceso: number | null;
+  t_enfermedad: number | null;
+  t_conductas: number | null;
   POV150_value: number | null;
   ACCESS2_CrudePrev: number | null;
   DIABETES_CrudePrev: number | null;
@@ -186,14 +190,24 @@ function Tooltip({ info }: { info: PickingInfo | null }) {
 function Inspector({
   zcta, detail, onClose,
 }: { zcta: string; detail: ZCTADetail | null; onClose: () => void }) {
-  // Las barras del desglose: qué tema empuja el score en ESTA zona.
+  // Los cinco temas, SIEMPRE en el mismo orden y siempre los cinco.
+  // Cada barra es el percentil nacional de esa zona en ese tema, no un
+  // reparto porcentual: "percentil 99.6 en lo socioeconómico" le dice al
+  // usuario dónde está parada la zona en el país.
+  const TEMAS = [
+    ['Socioeconómico', 't_socioeco'],
+    ['Vivienda y conectividad', 't_vivienda'],
+    ['Acceso a atención', 't_acceso'],
+    ['Carga de enfermedad', 't_enfermedad'],
+    ['Conductas de riesgo', 't_conductas'],
+  ] as const;
+
   const factores = detail
-    ? ([1, 2, 3, 4] as const)
-        .map((i) => ({
-          nombre: detail[`factor${i}` as keyof ZCTADetail] as string | null,
-          pct: detail[`factor${i}_pct` as keyof ZCTADetail] as number | null,
-        }))
-        .filter((f): f is { nombre: string; pct: number } => !!f.nombre && !!f.pct)
+    ? TEMAS.map(([nombre, key]) => ({
+        nombre,
+        pct: (detail[key] as number | null) ?? 0,
+        dominante: nombre === detail.factor1,
+      }))
     : [];
 
   const conf = detail?.confiabilidad ?? null;
@@ -252,19 +266,22 @@ function Inspector({
               mismo score salen con barras distintas -> acciones distintas. */}
           {factores.length > 0 && (
             <div className="desglose">
-              <div className="field-label">QUÉ LO CAUSA AQUÍ</div>
+              <div className="field-label">
+                QUÉ LO CAUSA AQUÍ
+                <span className="field-hint">percentil nacional</span>
+              </div>
               {factores.map((f) => (
-                <div className="bar-row" key={f.nombre}>
+                <div className={`bar-row${f.dominante ? ' dominante' : ''}`} key={f.nombre}>
                   <div className="bar-label">{f.nombre}</div>
                   <div className="bar-track">
                     <div className="bar-fill" style={{ width: `${f.pct}%` }} />
                   </div>
-                  <div className="bar-pct">{f.pct.toFixed(0)}%</div>
+                  <div className="bar-pct">{f.pct.toFixed(0)}</div>
                 </div>
               ))}
               {detail.factor1_detalle && (
                 <div className="desglose-note">
-                  Sobre todo: <strong>{detail.factor1_detalle}</strong>
+                  Lo que más pesa: <strong>{detail.factor1_detalle}</strong>
                 </div>
               )}
             </div>

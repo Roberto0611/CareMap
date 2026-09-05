@@ -528,3 +528,15 @@ html, body, #root {
     #33505f, #5d6668, #856455, #a75f45, #c65538, #e3502f, #ff6b3d
   );
 }
+
+/* El tema dominante se distingue del resto */
+.field-hint {
+  float: right;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-dim);
+}
+.bar-row.dominante .bar-label { color: var(--text-main); font-weight: 600; }
+.bar-row.dominante .bar-fill  { background: var(--acento); }
+.bar-row:not(.dominante) .bar-fill { opacity: 0.55; }

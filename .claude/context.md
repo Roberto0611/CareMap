@@ -287,9 +287,26 @@ Etiqueta por zona (alta / media / baja) comparando MOE contra el valor y la pobl
 **Es la columna que enciende el interruptor y lo que la rúbrica pide por escrito.**
 
 ### ④ Desglose
-De ese score, ¿cuánto puso cada indicador? Guardar los **4 principales** con su peso.
-Llena las barras del panel. Es lo que hace que dos zonas con score 87 tengan
-acciones sugeridas distintas.
+Los 35 indicadores se agrupan en **6 temas**; el panel muestra los **5 accionables**
+(«Perfil demográfico» cuenta en el score pero no como causa: la edad y la composición
+étnica son contexto, no algo que un programa cambie).
+
+**Cada tema se vuelve a rankear nacionalmente**, y esa es la barra: el percentil de
+la zona en ese tema, no un reparto porcentual.
+
+> ⚠️ **No promediar el exceso sobre la mediana dentro del tema** — así estaba antes y
+> castigaba a los temas amplios. «Carga de enfermedad» tiene 12 indicadores, así que
+> dos valores normales le hundían el promedio aunque la zona estuviera en el percentil
+> 99 de cinco enfermedades a la vez. Es como comparar el promedio de un alumno con 3
+> materias contra uno con 12. Con Chicago 60624 daba «Conductas de riesgo» como causa
+> principal en una zona con 51.6% de pobreza; al rankear por tema, sale
+> **Socioeconómico percentil 99.6**, que es lo correcto.
+
+Columnas de orden **fijo** (`t_socioeco`, `t_vivienda`, `t_acceso`, `t_enfermedad`,
+`t_conductas`) para que al comparar dos zonas las barras no se muevan de lugar y se
+lea la diferencia de forma — importa para la pantalla de gemelos.
+
+Es lo que hace que dos zonas con el mismo score tengan acciones distintas.
 
 ### ⑤ Residual
 Modelo social → salud con **validación cruzada** (obligatorio: sin CV el modelo ya vio
