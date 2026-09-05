@@ -607,3 +607,5 @@ donde la historia del MOE aterriza en una consecuencia presupuestal concreta.
 
 - ¿Hay ronda presencial de demo en vivo? (la rúbrica lo sugiere; confirmar con organizadores)
 - Nombre del producto y del equipo
+
+proyecto finalizado!

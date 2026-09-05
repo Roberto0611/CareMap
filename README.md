@@ -25,50 +25,50 @@
 
 ---
 
-## 📹 Video Demo
+## Video Demo
 
-[**▶ Ver video pitch en Google Drive**](https://drive.google.com/file/d/11GQHL0eGe9FsgEzhc4RI7U5ZWXUv4fDb/view?usp=sharing)
+[**Ver video pitch en Google Drive**](https://drive.google.com/file/d/11GQHL0eGe9FsgEzhc4RI7U5ZWXUv4fDb/view?usp=sharing)
 
 El video también está incluido en el repositorio: [`VIDEO_CAREMAP.mp4`](VIDEO_CAREMAP.mp4)
 
 **Idioma:** Español
 
-> 💡 **Nota:** El video incluye la demostración de la arquitectura interactiva, el algoritmo de asignación, la comparativa de gemelos estadísticos y nuestro agente de IA "Cloudy".
+> **Nota:** El video incluye la demostración de la arquitectura interactiva, el algoritmo de asignación, la comparativa de gemelos estadísticos y nuestro agente de IA "Cloudy".
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
-- [Resumen Ejecutivo](#-resumen-ejecutivo)
-- [Problema y Solución](#-problema-y-solución)
-- [Arquitectura Técnica](#️-arquitectura-técnica)
-- [Herramientas Tecnológicas](#-herramientas-tecnológicas)
-- [Características Principales](#-características-principales)
-- [Casos de Uso](#-casos-de-uso)
-- [Equipo](#-equipo)
+- [Resumen Ejecutivo](#resumen-ejecutivo)
+- [Problema y Solución](#problema-y-solución)
+- [Arquitectura Técnica](#arquitectura-técnica)
+- [Herramientas Tecnológicas](#herramientas-tecnológicas)
+- [Características Principales](#características-principales)
+- [Casos de Uso](#casos-de-uso)
+- [Equipo](#equipo)
 
 ---
 
-## 🎯 Resumen Ejecutivo
+## Resumen Ejecutivo
 
 **CareMap** es una herramienta (dashboard) y un índice compuesto de vulnerabilidad sociosanitaria por ZCTA (código postal aproximado) que permite a tomadores de decisiones en EE.UU. asignar recursos de salud de manera equitativa e informada. 
 
-✅ **Índice robusto** que considera el margen de error (MOE) y no confunde ruido con vulnerabilidad real.  
-✅ **Geográficamente navegable** a nivel ZCTA, condado y estado.  
-✅ **Algoritmo de asignación** de recursos que maximiza el impacto poblacional.  
-✅ **Asistente de Inteligencia Artificial (Cloudy)** con Text-to-SQL y RAG (Retrieval-Augmented Generation) para interactuar con los datos usando lenguaje natural.  
-✅ **Análisis de Gemelos Estadísticos** para comparar intervenciones en comunidades demográficamente idénticas.
+- **Índice robusto** que considera el margen de error (MOE) y no confunde ruido con vulnerabilidad real.
+- **Geográficamente navegable** a nivel ZCTA, condado y estado.
+- **Algoritmo de asignación** de recursos que maximiza el impacto poblacional.
+- **Asistente de Inteligencia Artificial (Cloudy)** con Text-to-SQL y RAG (Retrieval-Augmented Generation) para interactuar con los datos usando lenguaje natural.
+- **Análisis de Gemelos Estadísticos** para comparar intervenciones en comunidades demográficamente idénticas.
 
 ---
 
-## 🔍 Problema y Solución
+## Problema y Solución
 
-### 🚨 El Problema
+### El Problema
 En EE.UU., los datos de **contexto social** (quién vive en cada código postal) y de **salud** (qué tan enferma está esa población) viven en silos separados. Los tomadores de decisiones gubernamentales y ONGs suelen decidir dónde poner clínicas o programas a ciegas, basándose en promedios de condado que esconden graves desigualdades intraciudad. 
 
 Además, **el margen de error (MOE)** en zonas de baja población es masivo; usar estos datos sin tratamiento estadístico lleva a asignar presupuesto basándose en "ruido" en lugar de vulnerabilidad real.
 
-### 💡 Nuestra Solución
+### Nuestra Solución
 Una plataforma interactiva que:
 - Integra y limpia los datos de SDOH (Social Determinants of Health) y CDC PLACES.
 - Visibiliza la **verdadera vulnerabilidad** controlando la incertidumbre del MOE.
@@ -77,11 +77,11 @@ Una plataforma interactiva que:
 
 ---
 
-## 🏗️ Arquitectura Técnica
+## Arquitectura Técnica
 
 CareMap sustituye infraestructuras complejas en la nube con un enfoque moderno, serverless y ágil basado en **InsForge** y el ecosistema frontend de Vite.
 
-### 🔧 Componentes Implementados
+### Componentes Implementados
 
 #### 1. **InsForge (BaaS Postgres-based)**
 - **Base de Datos Relacional:** PostgreSQL aloja la tabla `zcta_analytics` con 31,742 registros de áreas consolidadas.
@@ -97,7 +97,7 @@ CareMap sustituye infraestructuras complejas en la nube con un enfoque moderno, 
 - Arquitectura 100% estática servida globalmente desde **Vercel** Edge Network.
 - Los polígonos del mapa y geometrías topológicas se pre-cargan y dibujan mediante WebGL (Deck.gl) logrando +60fps sin saturar la red.
 
-### 📊 Flujo de Datos
+### Flujo de Datos
 ```
 Usuario → Frontend (React + Vite) ↔ Vercel Edge Network
             ↓ (Prompt Natural)
@@ -110,7 +110,7 @@ Usuario → Frontend (React + Vite) ↔ Vercel Edge Network
 
 ---
 
-## 🛠 Herramientas Tecnológicas
+## Herramientas Tecnológicas
 
 ### Frontend Stack
 - **React 19 & TypeScript:** Tipado estricto y componentes funcionales.
@@ -126,7 +126,7 @@ Usuario → Frontend (React + Vite) ↔ Vercel Edge Network
 
 ---
 
-## ✨ Características Principales
+## Características Principales
 
 ### Cloudy 
 <p align="center">
@@ -149,11 +149,11 @@ Renderizado de alta eficiencia de todo el país a nivel ZCTA.
 - Desglose por factores causales (Socioeconómico, Vivienda, Carga de Enfermedad, etc.).
 - Filtrado por estados y cálculo de penalización estadística para ZCTAs ruidosos o de baja población.
 
-### 3. 🎯 Asignador de Recursos Inteligente
+### Asignador de Recursos Inteligente
 *Caso:* Un director de salud tiene presupuesto para 5 brigadas en un estado. 
 Si elige solo las zonas más "graves", podría terminar sirviendo a códigos postales de 100 habitantes. El **Algoritmo de Asignación** permite al usuario nivelar un *slider* entre **Gravedad vs. Alcance Poblacional**, y separa geográficamente las unidades sugeridas para evitar redundancia espacial.
 
-### 4. 👯‍♂️ Gemelos Estadísticos
+### Gemelos Estadísticos
 <p align="center">
   <img src="readmephotos/comparativagemelos.png" alt="Comparativa de Gemelos" width="800"/>
 </p>
@@ -162,7 +162,7 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 ---
 
-## 🎬 Casos de Uso
+## Casos de Uso
 
 **Escenario: Asignación de Unidades Móviles (Texas)**
 1. El usuario abre CareMap e invoca a Cloudy: *"Asigna 8 unidades móviles en Texas priorizando el alcance"*.
@@ -172,7 +172,7 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 ---
 
-## 👥 Equipo
+## Equipo
 
 | Rol | Nombre | Contribución | LinkedIn |
 |-----|--------|--------------|----------|
@@ -182,7 +182,7 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 ---
 
 <p align="center">
-  <strong>Desarrollado con ❤️</strong>
+  <strong>Desarrollado por el equipo CareMap</strong>
   <br>
   <sub>Data Rush 2026 | Data Science Club at Tec</sub>
 </p>
