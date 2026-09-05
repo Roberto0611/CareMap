@@ -171,8 +171,19 @@ function Inspector({ props, onClose }: { props: ZCTAProps; onClose: () => void }
   );
 }
 
-// ── Tab Strip ──────────────────────────────────────────────────────────
-function TabStrip({
+// ── Pastel Color Palette (matching reference image style) ───────────────
+const PASTEL_PALETTE = [
+  { bg: '#ffb4bd', border: '#fda4af' }, // Salmon / Pink (like 800,000 card)
+  { bg: '#dbeafe', border: '#bfdbfe' }, // Soft Blue / Lavender (like 100,000 card)
+  { bg: '#fef08a', border: '#fde047' }, // Soft Yellow (like 10,000 card)
+  { bg: '#bae6fd', border: '#7dd3fc' }, // Soft Sky / Cyan (like Millions card)
+  { bg: '#bbf7d0', border: '#86efac' }, // Soft Mint
+  { bg: '#fed7aa', border: '#fdba74' }, // Soft Peach
+  { bg: '#e9d5ff', border: '#d8b4fe' }, // Soft Purple
+];
+
+// ── State Grid Selector ────────────────────────────────────────────────
+function StateGrid({
   activeState,
   stateNames,
   onSelect,
@@ -184,37 +195,54 @@ function TabStrip({
   const sorted = useMemo(() => Object.keys(stateNames).sort(), [stateNames]);
   const stripRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to active state tab
+  // Auto-scroll to active state card
   useEffect(() => {
     if (!activeState || !stripRef.current) return;
     const btn = stripRef.current.querySelector(`[data-state="${activeState}"]`) as HTMLElement | null;
     btn?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }, [activeState]);
 
+  const handleWheel = (e: React.WheelEvent) => {
+    if (stripRef.current && e.deltaY !== 0) {
+      stripRef.current.scrollLeft += e.deltaY * 1.5;
+    }
+  };
+
   return (
-    <div className="tab-strip-wrap">
-      <div className="tab-strip" ref={stripRef}>
-        {/* National tab */}
+    <div className="state-grid-container">
+      <div className="state-grid-strip" ref={stripRef} onWheel={handleWheel}>
+        {/* National / USA First Card */}
         <button
-          className={`tab-btn national${!activeState ? ' active' : ''}`}
+          className={`state-card national${!activeState ? ' active' : ''}`}
           onClick={() => onSelect(null)}
+          style={{
+            backgroundColor: !activeState ? '#ffb4bd' : '#ffd1d7',
+          }}
         >
-          🌎 Mapa Nacional
+          <div className="state-card-code">USA</div>
+          <div className="state-card-label">MAPA NACIONAL</div>
         </button>
 
-        <div className="tab-sep" />
-
-        {sorted.map((abbr) => (
-          <button
-            key={abbr}
-            data-state={abbr}
-            className={`tab-btn${activeState === abbr ? ' active' : ''}`}
-            onClick={() => onSelect(abbr)}
-            title={stateNames[abbr]}
-          >
-            {abbr}
-          </button>
-        ))}
+        {sorted.map((abbr, idx) => {
+          const color = PASTEL_PALETTE[(idx + 1) % PASTEL_PALETTE.length];
+          const isActive = activeState === abbr;
+          return (
+            <button
+              key={abbr}
+              data-state={abbr}
+              className={`state-card${isActive ? ' active' : ''}`}
+              onClick={() => onSelect(abbr)}
+              style={{
+                backgroundColor: color.bg,
+                borderColor: isActive ? '#0f172a' : color.border,
+              }}
+              title={stateNames[abbr]}
+            >
+              <div className="state-card-code">{abbr}</div>
+              <div className="state-card-label">{stateNames[abbr]}</div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -433,35 +461,9 @@ export default function App() {
 
   return (
     <div className="shell">
-      {/* ── Topbar ── */}
-      <header className="topbar">
-        <div className="brand">
-          <div className="brand-logo">🗺</div>
-          <div className="brand-text">
-            <div className="title">DataRush — ZCTA Analytics</div>
-            <div className="sub">Canvas WebGL · CDC PLACES + ACS SDOH</div>
-          </div>
-        </div>
-        <div className="topbar-right">
-          {!loading && (
-            <>
-              <div className="chip">
-                {activeState ?? 'EE.UU.'} <strong>{stateStats.count.toLocaleString()} ZCTAs</strong>
-              </div>
-              <div className="chip">
-                Tierra <strong>{stateStats.landKm.toLocaleString()} km²</strong>
-              </div>
-            </>
-          )}
-          <button className="btn-ghost" onClick={() => handleStateSelect(null)}>
-            🌎 Vista Nacional
-          </button>
-        </div>
-      </header>
-
-      {/* ── Tab Strip ── */}
+      {/* ── State Grid Selector (replaces topbar & tabs) ── */}
       {!loading && stateMap && (
-        <TabStrip
+        <StateGrid
           activeState={activeState}
           stateNames={stateMap.state_names}
           onSelect={handleStateSelect}

@@ -45,153 +45,93 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* ── Topbar ──────────────────────────────────────────────────── */
-.topbar {
-  height: var(--topbar-h);
-  min-height: var(--topbar-h);
-  background: rgba(7, 12, 21, 0.95);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 22px;
-  z-index: 200;
-  position: relative;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  flex-shrink: 0;
-}
-
-.brand-logo {
-  width: 36px; height: 36px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #63b3ed 0%, #a78bfa 100%);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 18px rgba(99,179,237,0.35);
-  font-size: 1.1rem;
-}
-
-.brand-text .title {
-  font-size: 1rem; font-weight: 800; letter-spacing: -0.02em;
-  background: linear-gradient(90deg, #fff 0%, #a0aec0 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.brand-text .sub {
-  font-size: 0.65rem; font-weight: 600;
-  color: var(--primary); text-transform: uppercase; letter-spacing: 0.07em;
-}
-
-.topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-
-.chip {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-color);
-  border-radius: 20px; padding: 5px 13px;
-  font-size: 0.78rem; color: var(--text-muted);
-  white-space: nowrap;
-}
-.chip strong { font-family: var(--font-mono); color: var(--primary); font-weight: 700; }
-
-.btn-ghost {
-  display: flex; align-items: center; gap: 5px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-color);
-  border-radius: 8px; padding: 6px 12px;
-  font-size: 0.78rem; color: var(--text-muted);
-  cursor: pointer; transition: all 0.15s ease;
-  font-family: var(--font-sans); white-space: nowrap;
-}
-.btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
-
-/* ── Tab Strip ───────────────────────────────────────────────── */
-.tab-strip-wrap {
-  height: var(--tab-h);
-  min-height: var(--tab-h);
-  background: rgba(7, 12, 21, 0.9);
-  border-bottom: 1px solid var(--border-color);
+/* ── State Grid Container (Dark Blueprint Grid Mode) ─────────── */
+.state-grid-container {
   position: relative;
   z-index: 150;
-  overflow: hidden;
-}
-
-.tab-strip {
   display: flex;
   align-items: center;
-  height: 100%;
+  background-color: #070d18;
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 8px 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.state-grid-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 16px;
-  gap: 4px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  padding: 4px 2px;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  flex: 1;
 }
-.tab-strip::-webkit-scrollbar { display: none; }
 
-.tab-btn {
-  flex-shrink: 0;
-  display: flex; align-items: center; gap: 6px;
-  padding: 0 14px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-dim);
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
-  font-weight: 600;
+.state-grid-strip::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* ── Cuadritos / State Cards (Grid / Tile Style) ───────────────── */
+.state-card {
+  flex: 0 0 auto;
+  min-width: 120px;
+  max-width: 145px;
+  height: 64px;
+  padding: 8px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, outline 0.12s ease;
+  position: relative;
+  user-select: none;
+  font-family: var(--font-sans);
+}
+
+.state-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+.state-card.active {
+  outline: 3px solid #ffffff;
+  outline-offset: -1px;
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.35), 0 6px 16px rgba(0, 0, 0, 0.6);
+  z-index: 3;
+}
+
+.state-card-code {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #000000;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.state-card-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
   white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-
-.tab-btn:hover {
-  color: var(--text-muted);
-  background: rgba(255,255,255,0.04);
-}
-
-.tab-btn.active {
-  color: var(--accent-cyan);
-  background: rgba(34, 211, 238, 0.1);
-  border-color: rgba(34, 211, 238, 0.25);
-}
-
-.tab-btn.national.active {
-  color: var(--primary);
-  background: rgba(99, 179, 237, 0.12);
-  border-color: rgba(99, 179, 237, 0.3);
-}
-
-.tab-sep {
-  width: 1px; height: 20px;
-  background: var(--border-color);
-  flex-shrink: 0;
-  margin: 0 4px;
-}
-
-/* fade edges */
-.tab-strip-wrap::before,
-.tab-strip-wrap::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 32px;
-  z-index: 1;
-  pointer-events: none;
-}
-.tab-strip-wrap::before {
-  left: 0;
-  background: linear-gradient(to right, rgba(7,12,21,0.9), transparent);
-}
-.tab-strip-wrap::after {
-  right: 0;
-  background: linear-gradient(to left, rgba(7,12,21,0.9), transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Canvas area ─────────────────────────────────────────────── */
@@ -204,10 +144,12 @@ html, body, #root {
 
 .canvas-wrap canvas { display: block; }
 
-/* ── Left Panel ──────────────────────────────────────────────── */
+/* ── Left Panel (Centered vertically in the middle) ──────────── */
 .left-panel {
   position: absolute;
-  top: 16px; left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 20px;
   z-index: 50;
   display: flex; flex-direction: column; gap: 10px;
   width: 272px;
