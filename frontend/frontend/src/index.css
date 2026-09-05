@@ -1,5 +1,5 @@
 :root {
-  --bg-dark: #070c15;
+  --bg-dark: #000000;
   --bg-card: #0d1424;
   --bg-card-glass: rgba(13, 20, 36, 0.82);
   --bg-surface: #162035;
@@ -43,22 +43,23 @@ html, body, #root {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background: #000000;
 }
 
-/* ── State Grid Container (Dark Blueprint Grid Mode) ─────────── */
+/* ── State Grid Container (Pure Black Grid Mode) ─────────────── */
 .state-grid-container {
   position: relative;
   z-index: 150;
   display: flex;
   align-items: center;
-  background-color: #070d18;
+  background-color: #000000;
   background-image: 
-    linear-gradient(to right, rgba(56, 189, 248, 0.12) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
   background-size: 20px 20px;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   padding: 8px 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
   flex-shrink: 0;
 }
 
@@ -144,7 +145,7 @@ html, body, #root {
 
 .canvas-wrap canvas { display: block; }
 
-/* ── Left Panel (Centered vertically in the middle) ──────────── */
+/* ── Left Panel (Centered vertically in the middle, White Theme) ──── */
 .left-panel {
   position: absolute;
   top: 50%;
@@ -155,31 +156,32 @@ html, body, #root {
   width: 272px;
 }
 
-.glass-card {
-  background: var(--bg-card-glass);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: 14px; padding: 14px 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+.left-panel .glass-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: #000000;
 }
 
 /* State info card */
 .state-card-header {
   display: flex; align-items: center; gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .state-flag-badge {
   font-size: 1.5rem;
   line-height: 1;
 }
 .state-name-big {
-  font-size: 1rem; font-weight: 800;
-  color: var(--text-main);
+  font-size: 1.05rem; font-weight: 800;
+  color: #000000;
   letter-spacing: -0.02em;
 }
 .state-abbr-sub {
-  font-size: 0.7rem; font-weight: 600;
-  color: var(--accent-cyan); font-family: var(--font-mono);
+  font-size: 0.72rem; font-weight: 700;
+  color: #2563eb; font-family: var(--font-mono);
 }
 
 .mini-stat-row {
@@ -187,17 +189,17 @@ html, body, #root {
   gap: 8px; margin-top: 4px;
 }
 .mini-stat {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border-color);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px; padding: 8px 10px;
 }
 .mini-stat-key {
   font-size: 0.62rem; font-weight: 700;
-  color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;
+  color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;
 }
 .mini-stat-val {
-  font-size: 0.9rem; font-weight: 700;
-  color: var(--text-main); margin-top: 2px;
+  font-size: 0.95rem; font-weight: 800;
+  color: #000000; margin-top: 2px;
   font-family: var(--font-mono);
 }
 
@@ -205,56 +207,61 @@ html, body, #root {
 .search-wrap { position: relative; }
 .search-icon {
   position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-  color: var(--text-dim); pointer-events: none;
+  color: #64748b; pointer-events: none;
 }
 .search-input {
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #000000;
   padding: 9px 12px 9px 36px;
-  border-radius: 9px; font-size: 0.83rem;
+  border-radius: 8px; font-size: 0.83rem;
   font-family: var(--font-sans); outline: none;
   transition: border 0.2s, box-shadow 0.2s;
 }
-.search-input::placeholder { color: var(--text-dim); }
+.search-input::placeholder { color: #94a3b8; }
 .search-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-glow);
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .field-label {
   display: block; margin-bottom: 6px;
   font-size: 0.68rem; font-weight: 700;
-  color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em;
+  color: #334155; text-transform: uppercase; letter-spacing: 0.07em;
 }
 
 /* Selects / Sliders */
 .color-select {
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #000000;
   padding: 8px 12px; border-radius: 8px;
   font-size: 0.82rem; outline: none; cursor: pointer;
   font-family: var(--font-sans);
+}
+.color-select option {
+  background: #ffffff;
+  color: #000000;
 }
 
 .slider-row { display: flex; align-items: center; gap: 10px; }
 .slider {
   -webkit-appearance: none; appearance: none;
-  flex: 1; height: 4px; border-radius: 2px;
-  background: linear-gradient(90deg, var(--primary), var(--accent-violet));
+  flex: 1; height: 5px; border-radius: 3px;
+  background: #cbd5e1;
   outline: none;
 }
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 14px; height: 14px;
-  border-radius: 50%; background: #fff;
-  box-shadow: 0 0 6px var(--primary-glow); cursor: pointer;
+  -webkit-appearance: none; width: 15px; height: 15px;
+  border-radius: 50%; background: #0f172a;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3); cursor: pointer;
 }
 .slider-val {
   font-family: var(--font-mono); font-size: 0.75rem;
-  color: var(--primary); min-width: 30px;
+  color: #000000; font-weight: 700; min-width: 30px;
 }
 
 .legend-bar {
@@ -263,7 +270,7 @@ html, body, #root {
 }
 .legend-ends {
   display: flex; justify-content: space-between;
-  font-size: 0.68rem; color: var(--text-dim); font-family: var(--font-mono);
+  font-size: 0.68rem; color: #64748b; font-weight: 600; font-family: var(--font-mono);
 }
 
 /* ── Inspector Drawer ────────────────────────────────────────── */

@@ -488,7 +488,7 @@ export default function App() {
           onViewStateChange={({ viewState: vs }: any) => setViewState(vs)}
           controller
           layers={layers}
-          style={{ width: '100%', height: '100%', background: '#070c15' }}
+          style={{ width: '100%', height: '100%', background: '#000000' }}
           getCursor={({ isHovering }: any) => (isHovering ? 'pointer' : 'grab')}
         />
 
