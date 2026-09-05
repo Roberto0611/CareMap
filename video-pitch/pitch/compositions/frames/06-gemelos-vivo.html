@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- Escena 6 — Demo: gemelos en vivo. Metraje real (video3.mp4).
+         NUEVA — no estaba en el guion original. Funciona como eco directo
+         del gancho de la escena 1: el mismo par de Detroit (79/22, 2.8km,
+         2.7×) que se vio generado al inicio, ahora en vivo en el dashboard.
+         Un solo corte, 2s–16s (14s) — el video entero es la misma pantalla
+         fija 62s, con 14s alcanza para el eco. -->
+  </head>
+  <body>
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          font-family: "Montserrat", sans-serif;
+          overflow: hidden;
+        }
+        .clip { position: absolute; inset: 0; }
+
+        .titlecard {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0 96px;
+          z-index: 10;
+        }
+        .tc-num {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 20px;
+          letter-spacing: 0.1em;
+          color: #78818d;
+          opacity: 0;
+        }
+        .tc-title {
+          font-family: "Montserrat", sans-serif;
+          font-weight: 700;
+          font-size: 46px;
+          letter-spacing: -0.005em;
+          text-transform: uppercase;
+          color: #f0f6ff;
+          margin-top: 10px;
+          max-width: 18ch;
+          opacity: 0;
+        }
+        .tc-rule {
+          width: 260px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.24);
+          margin-top: 22px;
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+      </style>
+
+      <div data-hf-id="hf-0nbf" id="root" data-composition-id="gemelos-vivo" data-width="1920" data-height="1080" data-duration="63.916">
+        <div data-hf-id="hf-gm4u" class="titlecard clip" id="titlecard" data-start="0" data-duration="1.5">
+          <div data-hf-id="hf-r17c" class="tc-num" id="tc-num">FIG. 06</div>
+          <div data-hf-id="hf-xofe" class="tc-title" id="tc-title">Los mismos vecinos, en vivo</div>
+          <div data-hf-id="hf-k7vm" class="tc-rule" id="tc-rule"></div>
+        </div>
+
+        <video data-hf-id="hf-6kai" id="clip-a" class="clip" src="assets/grabaciones/video3.mp4" data-start="1.5" data-duration="62.416" data-media-start="0" data-track-index="0" muted playsinline></video>
+        <audio data-hf-id="hf-1737" id="clip-a-audio" src="assets/grabaciones/video3.mp4" data-start="1.5" data-duration="62.416" data-media-start="0" data-track-index="10"></audio>
+      </div>
+
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo("#tc-num", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 0.15);
+        tl.fromTo(
+          "#tc-title",
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          0.3
+        );
+        tl.to("#tc-rule", { scaleX: 1, duration: 0.4, ease: "power2.out" }, 0.55);
+        tl.set("#titlecard", { autoAlpha: 0 }, 1.5);
+
+        window.__timelines["gemelos-vivo"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

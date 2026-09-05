@@ -27,29 +27,37 @@
     </style>
   </head>
   <body>
-    <div data-hf-id="hf-x6kv" id="root" data-composition-id="main" data-start="0" data-duration="85" data-width="1920" data-height="1080">
-      <!-- Escena 1 — El gancho (0:00–0:20). Ver STORYBOARD.md § Frame 01. -->
+    <!-- ⚠️ Total actual: 6:00 (360.063s) — 1 minuto ARRIBA del tope de 5:00
+         de la rúbrica. Las 4 escenas de demo (04-07) usan sus videos
+         COMPLETOS sin que el asistente decida los cortes (a petición
+         explícita) — falta que el equipo los recorte para volver a caber.
+         video1 (escena 04) además incluye, cerca de su segundo 78, un
+         Alt+Tab accidental (selector de tareas de Windows) — recortar antes
+         de la entrega final. -->
+    <div data-hf-id="hf-zums" id="root" data-composition-id="main" data-start="0" data-duration="360.06" data-width="1920" data-height="1080">
+      <!-- Escena 1 — El gancho (0:00–0:20). Generada. -->
       <div data-hf-id="hf-tlbz" id="el-01-gancho" data-composition-id="gancho" data-composition-src="compositions/frames/01-gancho.html" data-start="0" data-duration="20" data-track-index="1" data-width="1920" data-height="1080"></div>
 
-      <!-- Escena 2 — El problema (0:20–0:45). Ver STORYBOARD.md § Frame 02. -->
+      <!-- Escena 2 — El problema (0:20–0:45). Generada. -->
       <div data-hf-id="hf-ohow" id="el-02-problema" data-composition-id="problema" data-composition-src="compositions/frames/02-problema.html" data-start="20" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
 
-      <!-- Escena 3 — Presentamos la herramienta (0:45–1:00). Ver STORYBOARD.md § Frame 03. -->
+      <!-- Escena 3 — Presentamos la herramienta (0:45–1:00). Generada. -->
       <div data-hf-id="hf-hggb" id="el-03-titulo" data-composition-id="titulo" data-composition-src="compositions/frames/03-titulo.html" data-start="45" data-duration="15" data-track-index="1" data-width="1920" data-height="1080"></div>
 
-      <!--
-        ⚠️ HUECO TEMPORAL: escenas 04–06 son metraje real (demo grabada),
-        aún sin grabar. Van aquí, entre la 3 y la 7. Cuando existan:
-          1. Insertar sus <div data-composition-src="..."> con
-             data-start = 60, 60+dur(04), 60+dur(04)+dur(05)...
-          2. Correr el data-start de la escena 7 (abajo) para que empiece
-             justo donde termine la 06 — hoy está pegada a la 3 nada más
-             para poder previsualizar el cierre.
-          3. Sumar data-duration del root a lo que resulte.
-      -->
+      <!-- Escena 4 — Demo: mapa + confiabilidad + predicción (1:00–2:22.482). Metraje real, CLIP COMPLETO (80.982s) — incluye el Alt+Tab del seg. 78, recortar antes de entregar. -->
+      <div data-playback-start="0" data-hf-id="hf-geri" id="el-04-mapa" data-composition-id="mapa-confiabilidad" data-composition-src="compositions/frames/04-mapa-confiabilidad.html" data-start="60" data-duration="1.505" data-track-index="1" data-width="1920" data-height="1080"></div><div data-hf-id="hf-3pox" data-playback-start="7.82" id="el-04-mapa-split" data-composition-id="mapa-confiabilidad-split" data-composition-src="compositions/frames/04-mapa-confiabilidad.html" data-start="61.51" data-duration="77.62" data-track-index="1" data-width="1920" data-height="1080"></div>
 
-      <!-- Escena 7 — Cierre. Pegada temporalmente a la 3 (ver hueco arriba). -->
-      <div data-hf-id="hf-a46s" id="el-07-cierre" data-composition-id="cierre" data-composition-src="compositions/frames/07-cierre.html" data-start="60" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <!-- Escena 5 — Demo: el asignador (2:22.482–3:27.048). Metraje real, CLIP COMPLETO (63.066s) — cortes pendientes de decidir por el equipo. -->
+      <div data-hf-id="hf-sepx" id="el-05-asignador" data-composition-id="asignador" data-composition-src="compositions/frames/05-asignador.html" data-start="142.482" data-duration="64.566" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 6 — Demo: gemelos en vivo (3:27.048–4:30.964). Metraje real, CLIP COMPLETO (62.416s), NUEVA — cortes pendientes. -->
+      <div data-hf-id="hf-9rs9" id="el-06-gemelos" data-composition-id="gemelos-vivo" data-composition-src="compositions/frames/06-gemelos-vivo.html" data-start="207.048" data-duration="63.916" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 7 — Demo: el agente (4:30.964–5:35.063). Metraje real, CLIP COMPLETO (62.599s), NUEVA — cortes pendientes. -->
+      <div data-hf-id="hf-fzc3" id="el-07-agente" data-composition-id="agente" data-composition-src="compositions/frames/07-agente.html" data-start="270.964" data-duration="64.099" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 8 — Cierre (5:35.063–6:00.063). Generada. -->
+      <div data-hf-id="hf-o8rq" id="el-08-cierre" data-composition-id="cierre" data-composition-src="compositions/frames/08-cierre.html" data-start="335.063" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
     </div>
 
     <script>

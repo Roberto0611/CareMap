@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #05080d;
+      }
+      /* Orquestador delgado: cada escena es una sub-composición.
+         Toda la animación vive dentro de compositions/frames/*.html */
+      [data-composition-id="main"] > div[data-composition-src] {
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ⚠️ Total actual: 5:26 (326.081s) — 26s ARRIBA del tope de 5:00 de la
+         rúbrica. Es así a propósito: 05/06/07 usan sus videos COMPLETOS sin
+         que yo decida los cortes (a petición explícita). Falta que alguien
+         recorte estos tres clips para volver a caber en el límite. -->
+    <div data-hf-id="hf-9xay" id="root" data-composition-id="main" data-start="0" data-duration="326.081" data-width="1920" data-height="1080">
+      <!-- Escena 1 — El gancho (0:00–0:20). Generada. -->
+      <div data-hf-id="hf-tlbz" id="el-01-gancho" data-composition-id="gancho" data-composition-src="compositions/frames/01-gancho.html" data-start="0" data-duration="20" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 2 — El problema (0:20–0:45). Generada. -->
+      <div data-hf-id="hf-ohow" id="el-02-problema" data-composition-id="problema" data-composition-src="compositions/frames/02-problema.html" data-start="20" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 3 — Presentamos la herramienta (0:45–1:00). Generada. -->
+      <div data-hf-id="hf-hggb" id="el-03-titulo" data-composition-id="titulo" data-composition-src="compositions/frames/03-titulo.html" data-start="45" data-duration="15" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 4 — Demo: mapa + confiabilidad + predicción (1:00–1:48.5). Metraje real, recortado (3 cortes, evita el alt-tab de video1 en el seg. 78). -->
+      <div data-hf-id="hf-s4nn" id="el-04-mapa" data-composition-id="mapa-confiabilidad" data-composition-src="compositions/frames/04-mapa-confiabilidad.html" data-start="60" data-duration="48.5" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 5 — Demo: el asignador (1:48.5–2:53.066). Metraje real, CLIP COMPLETO (63.066s) — cortes pendientes de decidir por el equipo. -->
+      <div data-hf-id="hf-klow" id="el-05-asignador" data-composition-id="asignador" data-composition-src="compositions/frames/05-asignador.html" data-start="108.5" data-duration="64.566" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 6 — Demo: gemelos en vivo (2:53.066–3:56.982). Metraje real, CLIP COMPLETO (62.416s), NUEVA — cortes pendientes. -->
+      <div data-hf-id="hf-yosb" id="el-06-gemelos" data-composition-id="gemelos-vivo" data-composition-src="compositions/frames/06-gemelos-vivo.html" data-start="173.066" data-duration="63.916" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 7 — Demo: el agente (3:56.982–5:00.982... realmente hasta 5:01.081). Metraje real, CLIP COMPLETO (62.599s), NUEVA — cortes pendientes. -->
+      <div data-hf-id="hf-h4w5" id="el-07-agente" data-composition-id="agente" data-composition-src="compositions/frames/07-agente.html" data-start="236.982" data-duration="64.099" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- Escena 8 — Cierre (5:01.081–5:26.081). Generada. -->
+      <div data-hf-id="hf-tq8p" id="el-08-cierre" data-composition-id="cierre" data-composition-src="compositions/frames/08-cierre.html" data-start="301.081" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      // Root casi vacío a propósito: toda la animación vive en las sub-comps.
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #05080d;
+      }
+      [data-composition-id="render-intro"] > div[data-composition-src] {
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Export temporal para edición externa: escenas 01-03 (el gancho, el
+         problema, presentamos la herramienta), sin las demos. No es parte
+         del guion final — se borra una vez que el equipo termina de editar
+         fuera de HyperFrames. -->
+    <div id="root" data-composition-id="render-intro" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+      <div id="el-01-gancho" data-composition-id="gancho" data-composition-src="compositions/frames/01-gancho.html" data-start="0" data-duration="20" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="el-02-problema" data-composition-id="problema" data-composition-src="compositions/frames/02-problema.html" data-start="20" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
+      <div id="el-03-titulo" data-composition-id="titulo" data-composition-src="compositions/frames/03-titulo.html" data-start="45" data-duration="15" data-track-index="1" data-width="1920" data-height="1080"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["render-intro"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

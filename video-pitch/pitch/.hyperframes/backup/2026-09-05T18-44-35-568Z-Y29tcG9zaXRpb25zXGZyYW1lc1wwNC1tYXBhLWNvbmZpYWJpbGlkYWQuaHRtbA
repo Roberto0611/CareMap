@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- Escena 4 — Demo: el mapa, el interruptor de confiabilidad y la
+         predicción. Metraje real (video1.mp4), no generado.
+         Ver STORYBOARD.md § Frame 04 y design.md.
+
+         Estructura: una tarjeta-título breve (mismo lenguaje de FIG. 01-03)
+         → corte seco a la grabación SIN overlay encima — la interfaz real
+         ya tiene su propia UI, ponerle algo arriba solo estorba.
+
+         Recortes de video1.mp4 (269s grabados en total entre las 4 tomas;
+         aquí solo 3 fragmentos de ESTA toma, elegidos a partir de un
+         análisis de miniaturas, no de ver el video con audio — revisar
+         al montar el corte final y ajustar si el ritmo no cuadra):
+           A  0s   -22s  (22s)  vista nacional, zoom, primer ZCTA
+           B  34s  -48s  (14s)  panel de desglose (qué lo causa aquí)
+           C  66s  -77s  (11s)  interruptor de confiabilidad activándose
+         Se corta ANTES del segundo 78 a propósito: ahí aparece el
+         selector de tareas de Windows (Alt+Tab accidental). -->
+  </head>
+  <body>
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          font-family: "Montserrat", sans-serif;
+          overflow: hidden;
+        }
+        .clip { position: absolute; inset: 0; }
+
+        /* Tarjeta-título — mismo lenguaje que FIG. 01-03 */
+        .titlecard {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0 96px;
+          z-index: 10;
+        }
+        .tc-num {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 20px;
+          letter-spacing: 0.1em;
+          color: #78818d;
+          opacity: 0;
+        }
+        .tc-title {
+          font-family: "Montserrat", sans-serif;
+          font-weight: 700;
+          font-size: 46px;
+          letter-spacing: -0.005em;
+          text-transform: uppercase;
+          color: #f0f6ff;
+          margin-top: 10px;
+          max-width: 18ch;
+          opacity: 0;
+        }
+        .tc-rule {
+          width: 260px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.24);
+          margin-top: 22px;
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+      </style>
+
+      <div data-hf-id="hf-s5ij" id="root" data-composition-id="mapa-confiabilidad" data-width="1920" data-height="1080" data-duration="48.5">
+        <!-- Tarjeta-título: 1.5s, luego corte seco -->
+        <div data-hf-id="hf-gm4u" class="titlecard clip" id="titlecard" data-start="0" data-duration="1.5">
+          <div data-hf-id="hf-q8la" class="tc-num" id="tc-num">FIG. 04</div>
+          <div data-hf-id="hf-vvy8" class="tc-title" id="tc-title">El mapa, la confiabilidad y la predicción</div>
+          <div data-hf-id="hf-k7vm" class="tc-rule" id="tc-rule"></div>
+        </div>
+
+        <!-- Corte A: 0–22 -->
+        <video data-hf-id="hf-poin" id="clip-a" class="clip" src="assets/grabaciones/video1.mp4" data-start="1.5" data-duration="22" data-media-start="0" data-track-index="0" muted playsinline></video>
+        <audio data-hf-id="hf-bg84" id="clip-a-audio" src="assets/grabaciones/video1.mp4" data-start="1.5" data-duration="22" data-media-start="0" data-track-index="10"></audio>
+
+        <!-- Corte B: 34–48 -->
+        <video data-hf-id="hf-g9g6" id="clip-b" class="clip" src="assets/grabaciones/video1.mp4" data-start="23.5" data-duration="14" data-media-start="34" data-track-index="0" muted playsinline></video>
+        <audio data-hf-id="hf-2mip" id="clip-b-audio" src="assets/grabaciones/video1.mp4" data-start="23.5" data-duration="14" data-media-start="34" data-track-index="10"></audio>
+
+        <!-- Corte C: 66–77 (se detiene ANTES del alt-tab en 78s) -->
+        <video data-hf-id="hf-1kem" id="clip-c" class="clip" src="assets/grabaciones/video1.mp4" data-start="37.5" data-duration="11" data-media-start="66" data-track-index="0" muted playsinline></video>
+        <audio data-hf-id="hf-vttv" id="clip-c-audio" src="assets/grabaciones/video1.mp4" data-start="37.5" data-duration="11" data-media-start="66" data-track-index="10"></audio>
+      </div>
+
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        tl.fromTo("#tc-num", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 0.15);
+        tl.fromTo(
+          "#tc-title",
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          0.3
+        );
+        tl.to("#tc-rule", { scaleX: 1, duration: 0.4, ease: "power2.out" }, 0.55);
+        // Corte seco: la tarjeta desaparece exactamente cuando entra el metraje
+        tl.set("#titlecard", { autoAlpha: 0 }, 1.5);
+
+        window.__timelines["mapa-confiabilidad"] = tl;
+      </script>
+    </template>
+  </body>
+</html>
