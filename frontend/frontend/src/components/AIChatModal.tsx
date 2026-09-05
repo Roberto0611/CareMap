@@ -303,21 +303,6 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
       {/* Resultados expandibles o estado pensando */}
       {!isMinimized && (hasContent || loading) && (
         <div className="ai-chat-content">
-          {/* Loading skeleton */}
-          {loading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 0' }}>
-              <img src={thinkingGif} alt="Pensando" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'contain' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
-                  {isAssignIntent(prompt) ? 'Calculando asignación óptima…' : 'Consultando base de datos…'}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>
-                  {isAssignIntent(prompt) ? 'El LLM está analizando tu solicitud…' : 'Generando SQL con IA…'}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Mensaje de Error */}
           {error && (
             <div
