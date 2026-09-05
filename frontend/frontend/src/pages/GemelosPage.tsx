@@ -1,21 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, AlertCircle, Compass } from 'lucide-react';
 import {
   cargarDatos, TEMAS, brechaEdad, esDefendible, colorVulnerabilidad,
   type Datos, type GemeloDestacado, type ZCTADetail,
 } from '../lib/datos';
 
 /**
- * Comparador de códigos postales contiguos.
- *
- * Comparar zonas lejanas admite demasiadas explicaciones alternativas (clima,
- * economía, política sanitaria). Comparar vecinos las elimina casi todas: dos
- * ZCTAs a pocos kilómetros comparten ciudad, condado, mercado laboral e
- * infraestructura médica, así que el contraste que quede es atribuible al
- * contexto social.
- *
- * Las cinco barras van en el mismo orden en ambas columnas para que la
- * diferencia se lea como una silueta y no como una tabla.
+ * Comparador de códigos postales contiguos (Gemelos Geográficos).
+ * Estilo Apple Dark Glass.
  */
 
 function fmt(n: number | null | undefined, suf = '%') {
@@ -32,10 +25,17 @@ function Columna({
 }) {
   return (
     <div className={`gem-col gem-${lado}`}>
-      <div className="gem-zcta">ZCTA {zcta}</div>
-      <div className="gem-score">{detalle?.score?.toFixed(0) ?? '—'}</div>
-      <div className="gem-score-cap">VULNERABILIDAD / 100</div>
-      {detalle?.arquetipo && <div className="gem-arq">{detalle.arquetipo}</div>}
+      <div className="gem-col-header">
+        <div className="gem-zcta">ZCTA {zcta}</div>
+        <div className="gem-score-box">
+          <div className="gem-score">{detalle?.score?.toFixed(0) ?? '—'}</div>
+          <div className="gem-score-cap">SCORE / 100</div>
+        </div>
+      </div>
+
+      {detalle?.arquetipo && (
+        <div className="gem-arq">{detalle.arquetipo}</div>
+      )}
 
       <div className="gem-cifras">
         {([
@@ -45,14 +45,14 @@ function Columna({
           ['Mayores de 65', mayores65],
         ] as const).map(([k, v]) => (
           <div className="gem-cifra" key={k}>
-            <span>{k}</span>
-            <strong>{fmt(v)}</strong>
+            <span className="gem-cifra-key">{k}</span>
+            <strong className="gem-cifra-val">{fmt(v)}</strong>
           </div>
         ))}
       </div>
 
       <div className="gem-barras">
-        <div className="field-label">PERFIL</div>
+        <div className="gem-barras-title">PERFIL POR DIMENSIÓN</div>
         {TEMAS.map(([nombre, key]) => {
           const v = (detalle?.[key] as number | null) ?? 0;
           return (
@@ -82,11 +82,6 @@ export default function GemelosPage() {
     cargarDatos().then(setDatos).catch((e) => setError(e.message));
   }, []);
 
-  // Una comparación es informativa cuando hay mucho contraste en salud Y poca
-  // diferencia de edad entre las dos zonas: si difieren en edad, el contraste
-  // podría explicarse por demografía en vez de por contexto social. Se penaliza
-  // cada punto de diferencia de edad para que los pares mejor controlados
-  // aparezcan primero, no los de contraste más llamativo.
   const pares = useMemo(() => {
     if (!datos) return [];
     const calidad = (g: GemeloDestacado) =>
@@ -94,9 +89,26 @@ export default function GemelosPage() {
     return [...datos.gemelos].sort((a, b) => calidad(b) - calidad(a));
   }, [datos]);
 
-  if (error) return <div className="gem-wrap"><p className="gem-error">Error: {error}</p></div>;
+  if (error) {
+    return (
+      <div className="gem-wrap">
+        <div className="gem-error-box">
+          <AlertCircle size={24} />
+          <p className="gem-error">Error al cargar datos: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!datos || pares.length === 0) {
-    return <div className="gem-wrap"><p className="gem-cargando">Cargando…</p></div>;
+    return (
+      <div className="gem-wrap">
+        <div className="gem-loading-box">
+          <div className="gem-spinner" />
+          <p className="gem-cargando">Cargando gemelos geográficos…</p>
+        </div>
+      </div>
+    );
   }
 
   const g: GemeloDestacado = pares[Math.min(i, pares.length - 1)];
@@ -105,74 +117,86 @@ export default function GemelosPage() {
 
   return (
     <div className="gem-wrap">
+      {/* Barra de navegación superior Apple */}
+      <div className="gem-top-nav">
+        <Link className="gem-pill-btn back" to="/map">
+          <ArrowLeft size={14} />
+          <span>Volver al mapa</span>
+        </Link>
+
+        <div className="gem-nav-center">
+          <div className="gem-select-wrapper">
+            <select
+              className="gem-apple-select"
+              value={i}
+              onChange={(e) => setI(Number(e.target.value))}
+            >
+              {pares.map((p, k) => (
+                <option key={`${p.a}-${p.b}`} value={k}>
+                  {p.ciudad} · {p.km} km {esDefendible(p) ? '' : '· edad dispar'}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <Link className="gem-pill-btn forward" to="/asignador">
+          <span>Asignar recursos</span>
+          <ArrowRight size={14} />
+        </Link>
+      </div>
+
+      {/* Hero Header */}
       <header className="gem-head">
-        <div>
-          <div className="field-label">GEMELOS GEOGRÁFICOS</div>
-          <h1 className="gem-title">Dos vecinos, dos realidades</h1>
-        </div>
-        <div className="gem-nav">
-          <select
-            className="color-select"
-            value={i}
-            onChange={(e) => setI(Number(e.target.value))}
-          >
-            {pares.map((p, k) => (
-              <option key={`${p.a}-${p.b}`} value={k}>
-                {p.ciudad} · {p.km} km {esDefendible(p) ? '' : '· edad dispar'}
-              </option>
-            ))}
-          </select>
-          <Link className="gem-link" to="/map">Ver en el mapa →</Link>
-          <Link className="gem-link" to="/asignador">Asignar recursos →</Link>
-        </div>
+        <div className="gem-kicker">GEMELOS GEOGRÁFICOS · {g.ciudad}</div>
+        <h1 className="gem-title">Dos vecinos, dos realidades</h1>
+        <p className="gem-metodo">
+          Pares de códigos postales contiguos (menos de 15 km) con la mayor
+          diferencia en vulnerabilidad. Al compartir clima, mercado laboral e
+          infraestructura sanitaria, el contraste aísla el peso del contexto social.
+        </p>
       </header>
 
-      <p className="gem-metodo">
-        Pares de códigos postales contiguos (menos de 15 km) con la mayor
-        diferencia en el índice de vulnerabilidad. Al ser vecinos comparten
-        clima, mercado laboral, gobierno local e infraestructura sanitaria, lo
-        que aísla el peso del contexto social. Los pares marcados como
-        <em> edad dispar</em> difieren en estructura demográfica y se
-        interpretan con cautela.
-      </p>
-
-      {/* Tres cifras resumen la comparación antes de entrar al detalle */}
+      {/* Tres cifras resumen estilo KPIs Apple */}
       <div className="gem-titulares">
         <div className="gem-tit">
+          <div className="gem-tit-cap">Distancia geográfica</div>
           <div className="gem-tit-num">{g.km}<small> km</small></div>
-          <div className="gem-tit-cap">de distancia entre ellos</div>
+          <div className="gem-tit-sub">Separados por escasos minutos</div>
         </div>
-        <div className="gem-tit destacado">
-          <div className="gem-tit-num">{veces.toFixed(1)}<small>×</small></div>
-          <div className="gem-tit-cap">más diabetes</div>
-        </div>
+
         <div className="gem-tit">
+          <div className="gem-tit-cap">Brecha de prevalencia</div>
+          <div className="gem-tit-num">{veces.toFixed(1)}<small>×</small></div>
+          <div className="gem-tit-sub">más diabetes en la zona vulnerable</div>
+        </div>
+
+        <div className="gem-tit">
+          <div className="gem-tit-cap">Población &gt;65 años</div>
           <div className="gem-tit-num">
-            {g.mayores65_a.toFixed(0)}<small>%</small> vs {g.mayores65_b.toFixed(0)}<small>%</small>
+            {g.mayores65_a.toFixed(0)}<small>%</small> <span className="gem-vs-text">vs</span> {g.mayores65_b.toFixed(0)}<small>%</small>
           </div>
-          <div className="gem-tit-cap">
-            población mayor de 65
+          <div className="gem-tit-sub">
             {edad <= 5
-              ? <span className="gem-ok"> · misma estructura de edad</span>
-              : <span className="gem-warn"> · ⚠ difieren {edad.toFixed(0)} puntos</span>}
+              ? <span className="gem-ok">Estructura de edad comparable</span>
+              : <span className="gem-warn">Difieren {edad.toFixed(0)} puntos</span>}
           </div>
         </div>
       </div>
 
       {edad > 5 && (
-        // Advertencia metodológica: varias condiciones crónicas aumentan con
-        // la edad, así que un par con estructuras demográficas distintas no
-        // aísla el efecto del contexto social.
-        <p className="gem-aviso">
-          Estas dos zonas tienen estructuras de edad distintas
-          ({g.mayores65_a.toFixed(0)}% y {g.mayores65_b.toFixed(0)}% de población
-          mayor de 65). Como la prevalencia de varias condiciones crónicas
-          aumenta con la edad, parte de la diferencia observada puede deberse a
-          la composición demográfica y no al contexto social. La comparación es
-          menos directa que en los pares marcados como comparables.
-        </p>
+        <div className="gem-aviso">
+          <AlertCircle size={18} className="gem-aviso-icon" />
+          <div>
+            <strong>Nota metodológica sobre la edad:</strong> Estas dos zonas presentan
+            estructuras demográficas distintas ({g.mayores65_a.toFixed(0)}% vs {g.mayores65_b.toFixed(0)}% mayores de 65).
+            Dado que ciertas condiciones crónicas incrementan con la edad, parte del contraste puede atribuirse
+            a la edad poblacional y no únicamente al contexto social.
+          </div>
+        </div>
       )}
 
+      {/* Comparador de Columnas con separador central de distancia */}
       <div className="gem-grid">
         <Columna
           zcta={g.a} detalle={datos.detalles[g.a]} lado="peor"
@@ -181,7 +205,10 @@ export default function GemelosPage() {
         />
         <div className="gem-vs">
           <div className="gem-vs-linea" />
-          <div className="gem-vs-km">{g.km} km</div>
+          <div className="gem-vs-km">
+            <Compass size={13} />
+            <span>{g.km} km</span>
+          </div>
           <div className="gem-vs-linea" />
         </div>
         <Columna
@@ -190,10 +217,6 @@ export default function GemelosPage() {
           sinSeguro={g.sin_seguro_b} mayores65={g.mayores65_b}
         />
       </div>
-
-      <p className="gem-pie">
-        {g.ciudad} · Datos: ACS 2017–2021 · CDC PLACES 2020
-      </p>
     </div>
   );
 }

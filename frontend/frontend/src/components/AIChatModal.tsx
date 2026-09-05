@@ -161,32 +161,6 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
       {/* Resultados expandibles o estado pensando */}
       {!isMinimized && (hasContent || loading) && (
         <div className="ai-chat-content">
-          {/* Indicador cuando está pensando */}
-          {loading && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: 'rgba(255, 255, 255, 0.9)',
-              }}
-            >
-              <img
-                src={thinkingGif}
-                alt="Pensando"
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  objectFit: 'contain',
-                }}
-              />
-            </div>
-          )}
           {/* Mensaje de Error */}
           {error && (
             <div
@@ -227,20 +201,30 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
                   </strong>
                 </div>
 
-                {result.rowCount > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {result.rowCount > 0 && (
+                    <button
+                      type="button"
+                      className="ai-action-btn-pill"
+                      onClick={() => {
+                        const zctas = result.rows
+                          .map((r) => r.zcta || r.gemelo)
+                          .filter(Boolean);
+                        onHighlightZctas(zctas);
+                      }}
+                    >
+                     Ver en el Mapa
+                    </button>
+                  )}
                   <button
                     type="button"
-                    className="ai-action-btn-pill"
-                    onClick={() => {
-                      const zctas = result.rows
-                        .map((r) => r.zcta || r.gemelo)
-                        .filter(Boolean);
-                      onHighlightZctas(zctas);
-                    }}
+                    className="ai-hide-btn"
+                    onClick={() => setIsMinimized(true)}
+                    title="Ocultar resultados"
                   >
-                   Ver en el Mapa
+                    Ocultar resultados ▼
                   </button>
-                )}
+                </div>
               </div>
 
               {result.rows.length === 0 ? (
@@ -294,6 +278,27 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
 
       {/* Barra Inferior estilo Spotlight Apple */}
       <div className="ai-chat-footer">
+        {/* Barra de control para mostrar y ocultar resultados */}
+        {hasContent && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingBottom: '2px',
+            }}
+          >
+            <button
+              type="button"
+              className="ai-toggle-results-btn"
+              onClick={() => setIsMinimized((v) => !v)}
+              title={isMinimized ? 'Mostrar resultados' : 'Ocultar resultados'}
+            >
+              <span>{isMinimized ? '▲ Mostrar resultados' : '▼ Ocultar resultados'}</span>
+            </button>
+          </div>
+        )}
+
         {/* Sugerencias Rápidas */}
         <div className="ai-chips-strip">
           {SAMPLE_QUERIES.map((q) => (
