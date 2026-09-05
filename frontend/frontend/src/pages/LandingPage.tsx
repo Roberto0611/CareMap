@@ -109,7 +109,7 @@ export default function LandingPage() {
                 backgroundColor: '#ff3c00',
                 color: '#ffffff',
                 padding: '4px 16px',
-                fontSize: 'clamp(2.2rem, 5.2vw, 3.8rem)',
+                fontSize: 'clamp(2rem, 4.6vw, 3.4rem)',
                 fontWeight: 800,
                 letterSpacing: '-0.03em',
                 lineHeight: 1.18,
@@ -118,23 +118,7 @@ export default function LandingPage() {
                 boxShadow: '0 6px 20px rgba(255, 60, 0, 0.3)',
               }}
             >
-              Identifica tus oportunidades
-            </span>
-            <span
-              style={{
-                backgroundColor: '#ff3c00',
-                color: '#ffffff',
-                padding: '4px 16px',
-                fontSize: 'clamp(2.2rem, 5.2vw, 3.8rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.18,
-                display: 'inline-block',
-                borderRadius: '3px',
-                boxShadow: '0 6px 20px rgba(255, 60, 0, 0.3)',
-              }}
-            >
-              en todo el pais.
+              Vulnerabilidad social y de salud, código postal por código postal.
             </span>
           </h1>
 
@@ -152,7 +136,7 @@ export default function LandingPage() {
                backgroundColor: 'white'
             }}
           >
-            Explora oportunidades clinicas en todo el pais
+            Cruza pobreza, acceso y salud para ver dónde intervenir primero.
           </p>
 
           {/* ── CTA Buttons ── */}
@@ -206,7 +190,7 @@ export default function LandingPage() {
           boxSizing: 'border-box',
         }}
       >
-        {/* Encabezado idéntico al screenshot de Browserbase */}
+        {/* Encabezado de la sección de hallazgos */}
         <div style={{ marginBottom: '32px', textAlign: 'left' }}>
           <h2
             style={{
@@ -218,7 +202,7 @@ export default function LandingPage() {
               margin: '0 0 10px 0',
             }}
           >
-            See what <span style={{ color: '#ff3c00' }}>Cloudy</span> can research for you.
+            Pregúntale a <span style={{ color: '#ff3c00' }}>Cloudy</span> lo que quieras saber.
           </h2>
           <p
             style={{
@@ -229,7 +213,7 @@ export default function LandingPage() {
               maxWidth: '680px',
             }}
           >
-            From login to task completion, Cloudy research reliably for you.
+            Escribe tu pregunta en español y Cloudy la traduce a una consulta sobre la base real de códigos postales, sin inventar cifras.
           </p>
         </div>
 
@@ -315,7 +299,7 @@ export default function LandingPage() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Deploy autonomous browser sessions at scale
+                Del hallazgo a la decisión, en un mismo lugar
               </h3>
 
               <p
@@ -326,22 +310,22 @@ export default function LandingPage() {
                   margin: 0,
                 }}
               >
-                Conecta tus agentes inteligentes a la web completa con capacidades anti-bot, inspección de sesiones en vivo y mapa interactivo de telemetría geoespacial.
+                Filtra por estado, compara códigos postales vecinos con salud opuesta y asigna recursos limitados a las zonas donde más rinden, todo con el margen de error real de cada estimación.
               </p>
 
               {/* Puntos técnicos de grid */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: '#334155', fontWeight: 600 }}>
                   <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span>
-                  Zero-setup headless browser infrastructure
+                  Vulnerabilidad y confiabilidad del dato por ZCTA
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: '#334155', fontWeight: 600 }}>
                   <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span>
-                  Real-time DOM inspection & anti-bot stealth
+                  Comparador de vecinos con salud opuesta
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: '#334155', fontWeight: 600 }}>
                   <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span>
-                  Instant session recording & telemetry stream
+                  Asignador de recursos por alcance y gravedad
                 </div>
               </div>
             </div>
@@ -379,7 +363,7 @@ export default function LandingPage() {
                   e.currentTarget.style.boxShadow = '0 4px 14px rgba(15, 23, 42, 0.15)';
                 }}
               >
-                Busca con Cloudy
+                Habla con Cloudy en el mapa
               </Link>
 
               <Link
@@ -405,7 +389,7 @@ export default function LandingPage() {
                   e.currentTarget.style.backgroundColor = '#f8fafc';
                 }}
               >
-                 Abrir Mapa Interactivo ›
+                 Abrir mapa interactivo ›
               </Link>
             </div>
           </div>
