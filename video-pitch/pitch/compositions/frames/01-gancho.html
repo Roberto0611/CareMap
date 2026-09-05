@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- Escena 1 — El gancho. Ver STORYBOARD.md § Frame 01 y design.md
+         § "Dirección visual — informe de agencia, no lanzamiento de producto".
+         Reescrita: la v1 usaba glow radial, tarjetas 3D y un número con
+         resplandor — los tres son señas documentadas de video hecho por IA.
+         Esta versión: figura de reporte técnico, plana, sin decoración. -->
+  </head>
+  <body>
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          font-family: "Montserrat", sans-serif;
+          overflow: hidden;
+        }
+
+        /* Retícula de fondo — papel milimétrico, no un glow. Estática,
+           siempre presente ("el fondo no está vacío" sin ser decorativa). */
+        .grid-bg {
+          position: absolute;
+          inset: 0;
+          background-image:
+            repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 96px),
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 96px);
+        }
+
+        /* Cabecera de figura — anclada arriba a la izquierda, como un
+           reporte técnico. Nunca centrada. */
+        .fig-head {
+          position: absolute;
+          top: 64px;
+          left: 96px;
+          z-index: 3;
+        }
+        .fig-num {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 20px;
+          letter-spacing: 0.1em;
+          color: #78818d;
+        }
+        .fig-title {
+          font-family: "Montserrat", sans-serif;
+          font-weight: 700;
+          font-size: 26px;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: #f0f6ff;
+          margin-top: 6px;
+        }
+        .fig-rule {
+          width: 340px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.22);
+          margin-top: 16px;
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+
+        /* Dos paneles de datos — anclados a columnas, no flotando centrados.
+           Tamaño desigual a propósito: el panel izquierdo lidera. */
+        .panels {
+          position: absolute;
+          top: 220px;
+          left: 96px;
+          right: 96px;
+          bottom: 260px;
+          display: grid;
+          grid-template-columns: 1.15fr 1fr;
+          gap: 2px;
+          background: rgba(255, 255, 255, 0.1); /* la "gap" hace de línea divisoria */
+        }
+        .panel {
+          background: #05080d;
+          padding: 44px 48px;
+          display: flex;
+          flex-direction: column;
+        }
+        .panel-eyebrow {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 20px;
+          letter-spacing: 0.08em;
+          color: #78818d;
+        }
+        .panel-score {
+          font-family: "JetBrains Mono", monospace;
+          font-variant-numeric: tabular-nums;
+          font-weight: 700;
+          font-size: 152px;
+          line-height: 1;
+          margin-top: 6px;
+        }
+        .panel-a .panel-score { color: #ff6b3d; }
+        .panel-b .panel-score { color: #f0f6ff; }
+        .panel-cap {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 17px;
+          letter-spacing: 0.12em;
+          color: #78818d;
+          margin-top: 4px;
+        }
+
+        .panel-rows {
+          margin-top: auto;
+          border-top: 1px solid rgba(255, 255, 255, 0.14);
+          padding-top: 20px;
+        }
+        .panel-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          font-size: 21px;
+          color: #c7ccd6;
+          padding: 7px 0;
+        }
+        .panel-row strong {
+          font-family: "JetBrains Mono", monospace;
+          font-variant-numeric: tabular-nums;
+          font-weight: 700;
+          color: #f0f6ff;
+        }
+        .panel-a .panel-row strong.hot { color: #ff6b3d; }
+
+        /* Etiqueta entre corchetes — reemplaza la insignia-píldora */
+        .bracket-tag {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 18px;
+          color: #78818d;
+        }
+        .bracket-tag b { color: #f0f6ff; font-weight: 700; }
+
+        /* Barra de escala — como un plano técnico, no una insignia flotante */
+        .scale {
+          position: absolute;
+          left: 50%;
+          bottom: 176px;
+          transform: translateX(-50%);
+          z-index: 3;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+        .scale-label {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 19px;
+          letter-spacing: 0.1em;
+          color: #8899b4;
+        }
+        .scale-bar {
+          width: 220px;
+          height: 1px;
+          background: #8899b4;
+          position: relative;
+          transform: scaleX(0);
+          transform-origin: 50% 50%;
+        }
+        .scale-bar::before,
+        .scale-bar::after {
+          content: "";
+          position: absolute;
+          top: -6px;
+          width: 1px;
+          height: 13px;
+          background: #8899b4;
+        }
+        .scale-bar::before { left: 0; }
+        .scale-bar::after { right: 0; }
+
+        /* El dato que resume todo — cifra de reporte con reglas arriba y
+           abajo, NUNCA glow ni text-shadow. Ancla a la izquierda, no al
+           centro: sigue el orden de lectura del panel A. */
+        .callout {
+          position: absolute;
+          left: 96px;
+          bottom: 64px;
+          right: 96px;
+          z-index: 4;
+          opacity: 0;
+        }
+        .callout-rule {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.22);
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+        .callout-body {
+          display: flex;
+          align-items: baseline;
+          gap: 28px;
+          padding: 18px 0;
+        }
+        .callout-num {
+          font-family: "JetBrains Mono", monospace;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+          font-size: 108px;
+          line-height: 1;
+          color: #ff6b3d;
+        }
+        .callout-text {
+          font-family: "Montserrat", sans-serif;
+          font-weight: 700;
+          font-size: 30px;
+          letter-spacing: 0.01em;
+          color: #f0f6ff;
+          text-transform: uppercase;
+        }
+
+        .credit {
+          position: absolute;
+          bottom: 24px;
+          left: 96px;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 15px;
+          letter-spacing: 0.06em;
+          color: #78818d;
+          z-index: 3;
+        }
+      </style>
+
+      <div data-hf-id="hf-cwtj" id="root" data-composition-id="gancho" data-width="1920" data-height="1080" data-duration="20">
+        <div data-hf-id="hf-q4u8" class="grid-bg"></div>
+
+        <div data-hf-id="hf-p1ex" class="fig-head">
+          <div data-hf-id="hf-iz9n" class="fig-num" id="fig-num">FIG. 01</div>
+          <div data-hf-id="hf-tibx" class="fig-title" id="fig-title">Vecinos, dos realidades</div>
+          <div data-hf-id="hf-19gm" class="fig-rule" id="fig-rule"></div>
+        </div>
+
+        <div data-hf-id="hf-1egm" class="panels" id="panels">
+          <div data-hf-id="hf-uodq" class="panel panel-a">
+            <div data-hf-id="hf-oh5g" class="panel-eyebrow">ZCTA 48215</div>
+            <div data-hf-id="hf-s0lz" class="panel-score">79</div>
+            <div data-hf-id="hf-wtw9" class="panel-cap">VULNERABILIDAD / 100</div>
+            <div data-hf-id="hf-u7m4" class="panel-rows">
+              <div data-hf-id="hf-dy91" class="panel-row"><span data-hf-id="hf-y71o">Diabetes</span><strong data-hf-id="hf-1cr6" class="hot">20.8%</strong></div>
+              <div data-hf-id="hf-8sft" class="panel-row"><span data-hf-id="hf-y0xw" class="bracket-tag">[ 65+ &#160;<b data-hf-id="hf-5gez">17.9%</b> ]</span></div>
+            </div>
+          </div>
+          <div data-hf-id="hf-qq9p" class="panel panel-b">
+            <div data-hf-id="hf-o4qx" class="panel-eyebrow">ZCTA 48230</div>
+            <div data-hf-id="hf-w8ej" class="panel-score">22</div>
+            <div data-hf-id="hf-xjxp" class="panel-cap">VULNERABILIDAD / 100</div>
+            <div data-hf-id="hf-lcf8" class="panel-rows">
+              <div data-hf-id="hf-9zcw" class="panel-row"><span data-hf-id="hf-i1fo">Diabetes</span><strong data-hf-id="hf-cb9i">7.6%</strong></div>
+              <div data-hf-id="hf-9l1v" class="panel-row"><span data-hf-id="hf-5u9o" class="bracket-tag">[ 65+ &#160;<b data-hf-id="hf-1pld">17.7%</b> ]</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div data-hf-id="hf-9eje" class="scale" id="scale">
+          <div data-hf-id="hf-xcef" class="scale-label">2.8 KM</div>
+          <div data-hf-id="hf-cfg2" class="scale-bar" id="scale-bar"></div>
+        </div>
+
+        <div data-hf-id="hf-q9gq" class="callout" id="callout">
+          <div data-hf-id="hf-fruo" class="callout-rule" id="callout-rule-top"></div>
+          <div data-hf-id="hf-2dcp" class="callout-body">
+            <div data-hf-id="hf-hmst" class="callout-num">2.7×</div>
+            <div data-hf-id="hf-aupd" class="callout-text">Más prevalencia de diabetes</div>
+          </div>
+          <div data-hf-id="hf-mwki" class="callout-rule" id="callout-rule-bottom"></div>
+        </div>
+
+        <div data-hf-id="hf-eu63" class="credit">Wayne County, MI &#160;·&#160; Fuente: ACS 2017–2021 · CDC PLACES 2020</div>
+      </div>
+
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        // ── Cabecera de figura: aparece primero, ancla la lectura ──
+        tl.fromTo("#fig-num", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, 0.15);
+        tl.fromTo(
+          "#fig-title",
+          { opacity: 0, x: -14 },
+          { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" },
+          0.3
+        );
+        tl.to("#fig-rule", { scaleX: 1, duration: 0.5, ease: "power2.out" }, 0.55);
+
+        // ── Paneles: entrada plana, sin 3D, panel A lidera por 0.15s ──
+        tl.fromTo(
+          ".panel-a",
+          { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          0.6
+        );
+        tl.fromTo(
+          ".panel-b",
+          { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+          0.75
+        );
+
+        // ── Filas internas: fade-up breve, orden de lectura ──
+        tl.from(
+          ".panel-a .panel-eyebrow, .panel-a .panel-score, .panel-a .panel-cap, .panel-a .panel-rows",
+          { opacity: 0, y: 10, stagger: 0.05, duration: 0.35, ease: "power2.out" },
+          1.05
+        );
+        tl.from(
+          ".panel-b .panel-eyebrow, .panel-b .panel-score, .panel-b .panel-cap, .panel-b .panel-rows",
+          { opacity: 0, y: 10, stagger: 0.05, duration: 0.35, ease: "power2.out" },
+          1.2
+        );
+
+        // ── Barra de escala: se dibuja como una acotación de plano ──
+        tl.fromTo("#scale", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 1.7);
+        tl.to("#scale-bar", { scaleX: 1, duration: 0.5, ease: "power2.out" }, 1.8);
+
+        // ── Único movimiento ambiental de la escena: la retícula respira
+        //    con un desplazamiento casi imperceptible, nunca un glow ──
+        tl.fromTo(
+          ".grid-bg",
+          { backgroundPosition: "0px 0px" },
+          { backgroundPosition: "12px 12px", duration: 18, ease: "none" },
+          0
+        );
+
+        // ── El dato de cierre: figura de reporte, reglas arriba/abajo,
+        //    sincronizado con "diabetes" en la narración. Sin glow. ──
+        tl.to("#panels, #scale", { opacity: 0.22, duration: 0.4, ease: "power2.out" }, 14.5);
+        tl.fromTo("#callout", { opacity: 0 }, { opacity: 1, duration: 0.05 }, 14.5);
+        tl.to("#callout-rule-top", { scaleX: 1, duration: 0.4, ease: "power2.out" }, 14.5);
+        tl.fromTo(
+          ".callout-num, .callout-text",
+          { opacity: 0, x: -16 },
+          { opacity: 1, x: 0, duration: 0.45, stagger: 0.08, ease: "power3.out" },
+          14.7
+        );
+        tl.to("#callout-rule-bottom", { scaleX: 1, duration: 0.4, ease: "power2.out" }, 15.1);
+
+        window.__timelines["gancho"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

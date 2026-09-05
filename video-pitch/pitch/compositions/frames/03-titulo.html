@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- Escena 3 — Presentamos la herramienta. Ver STORYBOARD.md § Frame 03
+         y design.md § "Dirección visual — informe de agencia".
+         El mapa es el render REAL de datos/zcta_scored.parquet con la rampa
+         de color vigente (pizarra→coral) — no una recreación decorativa.
+         ⚠️ "NOMBRE DEL PROYECTO" es un marcador: ese nombre aún no está
+         decidido (ver .claude/context.md § Preguntas abiertas). -->
+  </head>
+  <body>
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          background: #05080d;
+          font-family: "Montserrat", sans-serif;
+          overflow: hidden;
+        }
+
+        /* El mapa real, a sangre completa. Ken Burns lento — la única
+           licencia de movimiento sobre una imagen real (motion-principles). */
+        .map-wrap {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        .map-img {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transform: scale(1);
+          transform-origin: 52% 46%;
+        }
+
+        /* Velo de lectura — no un glow decorativo: existe solo para que el
+           texto se lea sobre una imagen real y ocupada. */
+        .scrim {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            to top,
+            #05080d 0%,
+            rgba(5, 8, 13, 0.88) 24%,
+            rgba(5, 8, 13, 0.35) 46%,
+            transparent 62%
+          );
+        }
+
+        .fig-num {
+          position: absolute;
+          top: 64px;
+          left: 96px;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 20px;
+          letter-spacing: 0.1em;
+          color: #c7ccd6;
+          opacity: 0;
+          z-index: 3;
+        }
+
+        /* Todo el bloque de título anclado abajo a la izquierda —
+           nunca centrado en el vacío. */
+        .title-block {
+          position: absolute;
+          left: 96px;
+          right: 96px;
+          bottom: 96px;
+          z-index: 3;
+        }
+        .project-name {
+          font-family: "Montserrat", sans-serif;
+          font-weight: 700;
+          font-size: 84px;
+          letter-spacing: -0.01em;
+          text-transform: uppercase;
+          color: #f0f6ff;
+          line-height: 1.02;
+          opacity: 0;
+        }
+        .project-desc {
+          font-size: 27px;
+          color: #c7ccd6;
+          margin-top: 14px;
+          max-width: 60ch;
+          opacity: 0;
+        }
+        .title-rule {
+          width: 100%;
+          max-width: 620px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.24);
+          margin-top: 28px;
+          transform: scaleX(0);
+          transform-origin: 0% 50%;
+        }
+        .source {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 17px;
+          letter-spacing: 0.06em;
+          color: #c7ccd6;
+          margin-top: 20px;
+          opacity: 0;
+        }
+        .source b {
+          color: #f0f6ff;
+          font-weight: 700;
+        }
+      </style>
+
+      <div data-hf-id="hf-4j5y" id="root" data-composition-id="titulo" data-width="1920" data-height="1080" data-duration="15">
+        <div data-hf-id="hf-ct7n" class="map-wrap">
+          <img data-hf-id="hf-zmhq" class="map-img" id="map-img" src="assets/mapa-nacional.png" alt="" data-layout-allow-overflow="true">
+        </div>
+        <div data-hf-id="hf-261e" class="scrim"></div>
+
+        <div data-hf-id="hf-i6nl" class="fig-num" id="fig-num">FIG. 03</div>
+
+        <div data-hf-id="hf-cgbe" class="title-block">
+          <div data-hf-id="hf-temb" class="project-name" id="project-name">[ Nombre del proyecto ]</div>
+          <div data-hf-id="hf-8tev" class="project-desc" id="project-desc">
+            Índice de vulnerabilidad sociosanitaria por código postal
+          </div>
+          <div data-hf-id="hf-a56e" class="title-rule" id="title-rule"></div>
+          <div data-hf-id="hf-s8q6" class="source" id="source">
+            Fuente: <b data-hf-id="hf-jgmu">ACS 2017–2021</b> · <b data-hf-id="hf-r97n">CDC PLACES 2020</b> · 31,742 ZCTA analizados
+          </div>
+        </div>
+      </div>
+
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        // ── Ken Burns lento sobre el mapa real: única licencia de
+        //    movimiento ambiental de la escena ──
+        tl.fromTo("#map-img", { scale: 1 }, { scale: 1.035, duration: 15, ease: "none" }, 0);
+
+        // ── Bloque de título: entra de abajo hacia arriba, en orden de
+        //    lectura, ancla inferior-izquierda ──
+        tl.fromTo("#fig-num", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.3);
+        tl.fromTo(
+          "#project-name",
+          { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
+          0.55
+        );
+        tl.fromTo(
+          "#project-desc",
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          0.95
+        );
+        tl.to("#title-rule", { scaleX: 1, duration: 0.5, ease: "power2.out" }, 1.3);
+        tl.fromTo(
+          "#source",
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+          1.7
+        );
+
+        window.__timelines["titulo"] = tl;
+      </script>
+    </template>
+  </body>
+</html>
