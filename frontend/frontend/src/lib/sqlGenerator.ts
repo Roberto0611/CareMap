@@ -146,9 +146,7 @@ export function matchTemplateQuery(prompt: string): string | null {
   return null;
 }
 
-const OPENROUTER_API_KEY =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OPENROUTER_API_KEY) ||
-  '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';
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined;
 
 /**
  * Traduce lenguaje natural a SQL mediante OpenRouter LLM (Llama 3.3 70B / GPT-4o-mini)

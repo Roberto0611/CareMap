@@ -3,12 +3,16 @@
  */
 
 const INSFORGE_URL =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_INSFORGE_URL) ||
-  'https://xvr5kh8n.us-west.insforge.app';
+  import.meta.env.VITE_INSFORGE_URL;
 
 const INSFORGE_API_KEY =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_INSFORGE_API_KEY) ||
-  'ik_25949c05497b038282266edc8f5ce47d';
+  import.meta.env.VITE_INSFORGE_API_KEY;
+
+if (!INSFORGE_URL || !INSFORGE_API_KEY) {
+  throw new Error(
+    '[insforgeClient] Faltan variables de entorno. Crea .env.local con VITE_INSFORGE_URL y VITE_INSFORGE_API_KEY.'
+  );
+}
 
 export interface QueryResult {
   rows: Record<string, any>[];

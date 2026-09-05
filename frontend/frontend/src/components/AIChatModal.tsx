@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { generateSQL } from '../lib/sqlGenerator';
 import { executeSQL, type QueryResult } from '../lib/insforgeClient';
+import {
+  isAssignIntent,
+  runAssignIntent,
+  formatAssignRows,
+  type AsignarIntentResult,
+} from '../lib/asignarIntent';
 import bloudIcon from '../bloud.svg';
 import thinkingGif from '../thinking.gif';
 import finishedGif from '../finished.gif';
@@ -20,12 +26,133 @@ interface AIChatModalProps {
 const SAMPLE_QUERIES = [
   'Menor vulnerabilidad en Texas',
   'Salud peor de lo esperado en Florida',
-  'Zonas con mayor pobreza en California',
+  'Asigna 8 recursos en TX separados 30 km',
   'Gemelos estadísticos de 78701',
   'Mayor prevalencia de diabetes en Texas',
-  'Códigos postales más poblados en New York',
+  'Asigna 5 brigadas en California priorizando alcance',
 ];
 
+// ─── Componente tabla de asignación ─────────────────────────────────────────
+function TablaAsignacion({ res, onVerMapa }: {
+  res: AsignarIntentResult;
+  onVerMapa: () => void;
+}) {
+  const { asignacion, params } = res;
+  const rows = formatAssignRows(asignacion.elegidas);
+  const ganancia = asignacion.alcanceIngenuo > 0
+    ? asignacion.alcance / asignacion.alcanceIngenuo
+    : 1;
+
+  const balanceLabel =
+    params.balance === 0 ? 'Gravedad' :
+    params.balance === 1 ? 'Alcance' :
+    'Equilibrado';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* Encabezado de resumen */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '8px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Asignación optimizada
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button type="button" className="ai-action-btn-pill" onClick={onVerMapa}>
+            Ver en el Mapa
+          </button>
+        </div>
+      </div>
+
+      {/* Métricas clave */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '6px',
+      }}>
+        {[
+          {
+            label: 'Personas alcanzadas',
+            value: asignacion.alcance.toLocaleString('es-MX'),
+            sub: `${params.recursos} zonas · ${params.estado ?? 'Nacional'}`,
+          },
+          {
+            label: 'Criterio ingenuo',
+            value: asignacion.alcanceIngenuo.toLocaleString('es-MX'),
+            sub: ganancia > 1.05 ? `${ganancia.toFixed(1)}× menos alcance` : 'Similar',
+          },
+          {
+            label: 'Balance',
+            value: balanceLabel,
+            sub: params.separacionKm > 0 ? `Sep. ${params.separacionKm} km` : 'Sin separación',
+          },
+        ].map((m) => (
+          <div key={m.label} style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '10px',
+            padding: '8px 10px',
+          }}>
+            <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>
+              {m.label}
+            </div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>
+              {m.value}
+            </div>
+            <div style={{ fontSize: '0.67rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>
+              {m.sub}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla de zonas elegidas */}
+      {rows.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
+          No se encontraron zonas con los criterios indicados.
+        </div>
+      ) : (
+        <div className="ai-table-wrap">
+          <table className="ai-table">
+            <thead>
+              <tr>
+                {Object.keys(rows[0]).map((col) => (
+                  <th key={col}>{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => (
+                <tr key={idx}>
+                  {Object.entries(row).map(([col, val]) => (
+                    <td
+                      key={col}
+                      className={
+                        col === 'zcta' ? 'cell-zcta' :
+                        col === 'índice' ? 'cell-score' :
+                        ''
+                      }
+                    >
+                      {val}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Componente principal ────────────────────────────────────────────────────
 export const AIChatModal: React.FC<AIChatModalProps> = ({
   isOpen,
   onClose,
@@ -48,8 +175,10 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
       zctaInputRef.current?.focus();
     }
   }, [isZctaExpanded]);
-  const [querySource, setQuerySource] = useState<'llm' | 'template' | null>(null);
+
+  const [querySource, setQuerySource] = useState<'llm' | 'template' | 'assign' | null>(null);
   const [result, setResult] = useState<QueryResult | null>(null);
+  const [assignResult, setAssignResult] = useState<AsignarIntentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSql, setShowSql] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -118,19 +247,35 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
     setAgentStatus('thinking');
     setError(null);
     setResult(null);
+    setAssignResult(null);
+    setGeneratedSql(null);
     setIsMinimized(false);
 
     try {
-      // 1. Generar SQL usando OpenRouter con la API Key configurada
+      // ── 1. Detectar intención de ASIGNACIÓN ──────────────────────────────
+      if (isAssignIntent(queryText)) {
+        setQuerySource('assign');
+        const intentResult = await runAssignIntent(queryText);
+
+        if (intentResult.detected) {
+          setAssignResult(intentResult);
+          // Resaltar en el mapa automáticamente
+          if (intentResult.zctas.length > 0) {
+            onHighlightZctas(intentResult.zctas);
+          }
+          setAgentStatus('finished');
+          return;
+        }
+      }
+
+      // ── 2. Flujo normal: Text-to-SQL ─────────────────────────────────────
       const { sql, source } = await generateSQL(queryText);
       setGeneratedSql(sql);
       setQuerySource(source);
 
-      // 2. Ejecutar SQL en PostgreSQL de InsForge
       const queryRes = await executeSQL(sql);
       setResult(queryRes);
 
-      // 3. Si hay ZCTAs en las columnas resultantes, prepararlos y resaltar en el mapa
       const zctaList = queryRes.rows
         .map((r) => r.zcta || r.gemelo)
         .filter(Boolean) as string[];
@@ -141,8 +286,8 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
 
       setAgentStatus('finished');
     } catch (err: any) {
-      console.error('Error en Text-to-SQL:', err);
-      setError(err.message || 'Error ejecutando la consulta en InsForge.');
+      console.error('Error en agente Cloudy:', err);
+      setError(err.message || 'Error ejecutando la consulta.');
       setAgentStatus('idle');
     } finally {
       setLoading(false);
@@ -154,13 +299,30 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
     handleRunQuery(prompt);
   };
 
-  const hasContent = Boolean(error || generatedSql || result);
+  const hasContent = Boolean(error || generatedSql || result || assignResult);
+
+
 
   return (
     <div className="ai-floating-chat" onClick={(e) => e.stopPropagation()}>
       {/* Resultados expandibles o estado pensando */}
       {!isMinimized && (hasContent || loading) && (
         <div className="ai-chat-content">
+          {/* Loading skeleton */}
+          {loading && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 0' }}>
+              <img src={thinkingGif} alt="Pensando" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'contain' }} />
+              <div>
+                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+                  {isAssignIntent(prompt) ? 'Calculando asignación óptima…' : 'Consultando base de datos…'}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>
+                  {isAssignIntent(prompt) ? 'El LLM está analizando tu solicitud…' : 'Generando SQL con IA…'}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Mensaje de Error */}
           {error && (
             <div
@@ -177,8 +339,20 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
             </div>
           )}
 
-          {/* Resultados de la Base de Datos */}
-          {result && (
+          {/* ── Resultado de ASIGNACIÓN ── */}
+          {assignResult && !loading && (
+            <TablaAsignacion
+              res={assignResult}
+              onVerMapa={() => {
+                if (assignResult.zctas.length > 0) {
+                  onHighlightZctas(assignResult.zctas);
+                }
+              }}
+            />
+          )}
+
+          {/* ── Resultado SQL normal ── */}
+          {result && !loading && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div
                 style={{
@@ -299,6 +473,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
           </div>
         )}
 
+
         {/* Sugerencias Rápidas */}
         <div className="ai-chips-strip">
           {SAMPLE_QUERIES.map((q) => (
@@ -366,7 +541,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
           <input
             type="text"
             className="ai-chat-input"
-            placeholder="Pregunta a Cloudy sobre códigos postales (ej. menor vulnerabilidad en Texas)..."
+            placeholder="Ej: asigna 5 recursos en Texas separados 10 km con prioridad balanceada…"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
