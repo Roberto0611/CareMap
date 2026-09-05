@@ -5,7 +5,9 @@
 
 Entrada:  data/zcta_master_analytical.parquet  (salida de etl_zcta_unify.py)
 Salida:   data/zcta_scored.parquet
-          data/zcta_scored.json   <- lo que consume el frontend
+
+Después de este script corren 05, 06 y 07 (que agregan columnas al mismo
+parquet) y al final 08_export_web.py, que escribe el JSON para el frontend.
 
 Método
 ------
@@ -38,7 +40,6 @@ except Exception:  # noqa: BLE001 - consolas que no lo soportan
 ROOT = Path(__file__).resolve().parent.parent
 IN_PARQUET = ROOT / "data" / "zcta_master_analytical.parquet"
 OUT_PARQUET = ROOT / "data" / "zcta_scored.parquet"
-OUT_JSON = ROOT / "data" / "zcta_scored.json"
 
 # ─────────────────────────────────────────────────────────────────────
 # Indicadores
@@ -319,39 +320,17 @@ def main() -> int:
     keep = [c for c in keep if c in df.columns]
     out = df[keep].copy()
 
+    # OJO: las coordenadas NO se redondean junto con lo demás.
+    # A 1 decimal el error es de ~11 km — suficiente para que dos ZCTAs
+    # distintas caigan en el mismo punto y el cálculo de gemelos (07) diga
+    # "0.0 km" entre zonas que están a kilómetros. Se quedan con 5 decimales
+    # (~1 m), que es la precisión del centroide del Census.
+    COORDS = {"latitude", "longitude"}
     for c in out.select_dtypes("float").columns:
-        out[c] = out[c].round(1)
+        out[c] = out[c].round(5 if c in COORDS else 1)
 
     out.to_parquet(OUT_PARQUET, index=False)
     log(f"{OUT_PARQUET.name}  ({OUT_PARQUET.stat().st_size / 1e6:.1f} MB)")
-
-    # ── JSON para el frontend ─────────────────────────────────────────
-    # Formato columnar con strings "interned": en vez de repetir
-    # "Massachusetts" 800 veces, se guarda una tabla de textos y un índice.
-    # Baja el archivo de ~18 MB a ~3 MB (y ~1 MB al servirse comprimido).
-    web = out.drop(columns=["latitude", "longitude"], errors="ignore")
-
-    str_cols = [c for c in web.columns if web[c].dtype == object and c != "zcta"]
-    lookups: dict[str, list] = {}
-    for c in str_cols:
-        vals = sorted(v for v in web[c].dropna().unique())
-        lookups[c] = vals
-        idx = {v: i for i, v in enumerate(vals)}
-        web[c] = web[c].map(lambda v: idx.get(v, -1) if pd.notna(v) else -1)
-
-    cols = [c for c in web.columns if c != "zcta"]
-    rows = {
-        z: [None if pd.isna(v) else (int(v) if isinstance(v, (bool, np.integer)) else v)
-            for v in vals]
-        for z, *vals in web[["zcta"] + cols].itertuples(index=False)
-    }
-
-    payload = {"columns": cols, "lookups": lookups, "rows": rows}
-    OUT_JSON.write_text(
-        json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
-        encoding="utf-8",
-    )
-    log(f"{OUT_JSON.name}  ({OUT_JSON.stat().st_size / 1e6:.1f} MB)")
 
     print()
     return 0

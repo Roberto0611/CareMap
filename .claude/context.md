@@ -95,57 +95,56 @@ Estos son los activos del pitch. Todos reproducibles.
 - **801 ZCTAs reportan 0% o 100% de pobreza — su población mediana es 155.** Es ruido, no realidad.
 - → Rankear por hacinamiento crudo es casi rankear ruido
 
-### 3.4 El modelo: lo social explica el 76% de la salud
+### 3.4 El modelo: lo social explica el 78% de la salud
 
-- Modelo (GradientBoosting, validación cruzada 5-fold) prediciendo un índice de mala salud
+- Modelo (GradientBoosting, validación cruzada 5-fold) prediciendo `score_salud`
   a partir de los 9 indicadores sociales, en ZCTAs con 1,000+ hab (n=22,680)
-- **R² = 0.761**
-- Verificado que **NO está confundido por edad**: % de 65+ es 18.5 en las zonas
-  "mejor de lo esperado" vs 18.1 en las "peor de lo esperado" (nacional 18.3)
+- **R² = 0.780**  ← cifra vigente, reproducible con `pipeline/05_residual.py`
+- Verificado que **NO está confundido por edad**: % de 65+ es 18.9 en las zonas
+  "mejor de lo esperado" vs 19.4 en las "peor de lo esperado" (nacional 19.8)
 - El 24% no explicado es el oro: zonas peor de lo esperado = algo puntual arreglable;
   zonas mejor de lo esperado = *positive deviance*, hay algo que aprender
 
 ### 3.5 Los gemelos geográficos
 
-De 44,194 pares de ZCTAs vecinos (menos de 15 km, ambos con 5,000+ hab), los de mayor contraste:
+Calculado por `pipeline/07_gemelos.py`. Los 20 mejores están en
+`data/gemelos_destacados.json`. **El par recomendado para el pitch:**
 
-**Chicago — 60624 vs 60622 (4.2 km) — USAR ESTE**
+**Detroit — 48215 vs 48230 · 2.8 km · Wayne County, MI**
 
-| | 60624 | 60622 |
+| | 48215 | 48230 |
 |---|---|---|
-| Población | 36,986 | 54,650 |
-| Pobreza | 51.6% | 14.4% |
-| Sin preparatoria | 23.4% | 5.3% |
-| **Diabetes** | **19.2%** | **5.3%** |
-| Sin seguro | 27.1% | 13.8% |
-| Inactividad física | 39.9% | 15.9% |
-| Tabaquismo | 28.8% | 12.4% |
-| 65+ años | 11.1% | 6.5% |
+| Población | 10,542 | 17,340 |
+| Score | **78.7** | **21.7** |
+| Pobreza | 47.9% | 7.7% |
+| **Diabetes** | **20.8%** | **7.6%** |
+| **65+ años** | **18%** | **18%** ← idéntico |
+| Arquetipo | Pobreza concentrada | Acomodada |
 
-Otros pares válidos: Memphis (38126 vs 38103, 3.4 km), Dallas (75210 vs 75201),
-Houston (77051 vs 77054).
+> **Por qué este y no otro:** la estructura de edad es prácticamente idéntica
+> (18% vs 18%), así que nadie puede decir "es que una es más vieja". 2.8 km,
+> 2.7× más diabetes, misma ciudad, mismo condado.
 
-> 🚫 **NO USAR El Paso (79901 vs 79906).** Es el par más extremo (diabetes 28.2% vs 3.5%)
-> pero **79906 es una base militar**: 0.1% de población 65+. Población joven de soldados.
-> Un juez lo tumba en preguntas. Chicago aguanta porque la zona enferma es incluso *más* vieja.
+Alternativas igual de limpias: Chicago (60644 vs 60304, 2.9 km, 65+ 14% vs 13%),
+Cleveland (44055 vs 44011, 10.8 km).
+
+> 🚫 **Antes de llevar CUALQUIER par al pitch, revisa la fila 65+.** Si una zona
+> tiene casi cero población mayor, es una base militar o un campus: se ve sana
+> solo porque es gente joven. El caso que lo enseñó fue El Paso 79901 vs 79906
+> (diabetes 28.2% vs 3.5%, pero 79906 tiene 0.1% de 65+). El script imprime esa
+> fila justo para esto.
 
 ### 3.6 Los 6 arquetipos
 
-K-means (k=6) sobre indicadores sociales y de salud estandarizados:
+Ver la tabla vigente en la estación ⑥ más abajo (sección 6).
 
-| # | Perfil | Zonas | Pobreza | Sin seguro | Diabetes | 65+ | Lo que lo define |
-|---|---|---|---|---|---|---|---|
-| 1 | Acomodada | 4,585 | 9% | 9% | 8% | 18% | Baja vulnerabilidad en todo |
-| 2 | Envejecida estable | 6,487 | 16% | 11% | 11% | 22% | Mayores, pero sí van al doctor |
-| 3 | Presión de vivienda | 3,471 | 23% | 16% | 10% | 14% | Carga de renta + hacinamiento, salud aguanta |
-| 4 | Rural con riesgo conductual | 5,427 | 27% | 16% | 14% | 19% | Tabaquismo y salud mental altos |
-| 5 | Pobreza concentrada | 1,667 | 44% | 20% | **17%** | 16% | Ya enfermos. Carga crónica. |
-| 6 | Barrera de acceso | 1,043 | 37% | **31%** | 14% | 11% | Hacinamiento y baja escolaridad altísimos |
-
-> **El argumento de accionabilidad:** los grupos 5 y 6 tienen scores igual de malos pero
+> **El argumento de accionabilidad:** "Barrera de acceso" y "Pobreza concentrada"
+> tienen scores igual de malos pero
 > necesitan intervenciones **opuestas**. El 5 ya está enfermo → manejo de crónicos.
-> El 6 no puede entrar al sistema → inscripción a seguro y atención en su idioma.
-> Si no actúas en el 6, en 10 años se vuelve el 5.
+> "Pobreza concentrada" ya está enferma (diabetes 16%, hacinamiento 2%) → manejo
+> de crónicos. "Barrera de acceso" todavía no tanto (diabetes 15%) pero **29% no
+> tiene seguro y 17% vive hacinada** → inscripción a cobertura y atención en su
+> idioma. Si no actúas en la segunda, en 10 años se vuelve la primera.
 
 ---
 
@@ -155,9 +154,9 @@ Orden narrativo del video (4 minutos):
 
 | # | Golpe | Qué dice | Tiempo |
 |---|---|---|---|
-| 1 | **Gemelos** | "4 km de distancia, 4 veces más diabetes" | 0:00–0:40 |
+| 1 | **Gemelos** | "2.8 km de distancia, 2.7 veces más diabetes" (Detroit) | 0:00–0:40 |
 | 2 | **El interruptor** | "La lista obvia estaba llena de ruido" (toggle MOE en vivo) | 0:40–1:40 |
-| 3 | **El modelo** | "Lo social explica el 76%. Donde falla, ahí rinde tu dinero" | 1:40–3:10 |
+| 3 | **El modelo** | "Lo social explica el 78%. Donde falla, ahí rinde tu dinero" | 1:40–3:10 |
 | 4 | **El asignador** | "No te doy un mapa, te doy las 12 direcciones" | 3:10–4:10 |
 
 Cada golpe monta sobre el anterior.
@@ -177,18 +176,28 @@ datarush-3/
 ├── frontend/frontend/         React 19 + Vite + TS + deck.gl
 │   ├── public/mapa/zcta_data.topojson    <- lo que sirve el mapa
 │   ├── public/datos/zcta_scored.json     <- detalle del panel
-│   └── src/pages/MapPage.tsx
+│   ├── src/lib/datos.ts                  <- carga/desempaqueta el JSON columnar
+│   └── src/pages/
+│       ├── LandingPage.tsx    /          (texto pendiente — lo ve el compañero)
+│       ├── MapPage.tsx        /map
+│       └── GemelosPage.tsx    /gemelos   ✅
 └── api/                       FastAPI. ~30 líneas. (pendiente)
 ```
 
 **Orden para regenerar todo desde cero:**
 ```
-python etl_zcta_unify.py
-python pipeline/02_score.py
+python etl_zcta_unify.py           # ①  4 CSVs -> master
+python pipeline/02_score.py        # ②③④ score, confiabilidad, desglose
+python pipeline/05_residual.py     # ⑤  modelo, R²=0.780
+python pipeline/06_arquetipos.py   # ⑥  6 perfiles
+python pipeline/07_gemelos.py      # ⑦  vecino con más contraste
+python pipeline/08_export_web.py   # → public/datos/zcta_scored.json
+
+# Solo si cambió el score (regenera la geometría, ~3 min):
 python pipeline/03_enrich_geojson.py
-python pipeline/04_topojson.py       # ~3 min
-cp data/zcta_scored.json frontend/frontend/public/datos/
+python pipeline/04_topojson.py
 ```
+Los pasos 05, 06 y 07 **agregan columnas al mismo parquet**, así que el orden importa.
 
 ### Peso de lo que descarga el juez (medido, comprimido)
 
@@ -308,16 +317,34 @@ lea la diferencia de forma — importa para la pantalla de gemelos.
 
 Es lo que hace que dos zonas con el mismo score tengan acciones distintas.
 
-### ⑤ Residual
+### ⑤ Residual — `pipeline/05_residual.py` ✅
 Modelo social → salud con **validación cruzada** (obligatorio: sin CV el modelo ya vio
-la zona y los residuales salen mal). Guardar `esperado` y `residual`.
+la zona y los residuales salen mal). **R² = 0.780** sobre 22,680 zonas de 1,000+ hab.
+Verificado sin sesgo de edad (65+: 19.4 en las peor-de-lo-esperado vs 18.9 en las
+mejor-de-lo-esperado). Columnas `salud_esperada`, `residual`. Cobertura 71.5%.
 
-### ⑥ Arquetipo
-K-means k=6. Una columna de texto. Las 6 narrativas van en un archivo aparte.
+### ⑥ Arquetipo — `pipeline/06_arquetipos.py` ✅
+K-means k=6 sobre 14 dimensiones. **Los nombres NO dependen del número de grupo**
+que asigna K-means (que cambia entre corridas): cada arquetipo se define por su
+perfil y se asigna al grupo que mejor lo cumple. Columnas `arquetipo`,
+`arquetipo_desc`. Cobertura 99.1%.
 
-### ⑦ Gemelos
-Para cada zona, el vecino geográfico (menos de 15 km) con mayor contraste en salud.
-Columnas `gemelo` y `brecha`.
+| Arquetipo | Zonas | Pobreza | Sin seguro | Diabetes | 65+ | Hacinam. |
+|---|---|---|---|---|---|---|
+| Barrera de acceso | 1,062 | 44% | **29%** | 15% | 11% | **17%** |
+| Pobreza concentrada | 5,743 | 37% | 18% | **16%** | 20% | 2% |
+| Presión de vivienda | 4,104 | 26% | 17% | 10% | 14% | 4% |
+| Rural con riesgo conductual | 10,677 | 19% | 13% | 12% | 19% | 2% |
+| Envejecida estable | 2,489 | 18% | 12% | 13% | **42%** | 1% |
+| Acomodada | 7,395 | 11% | 10% | 9% | 18% | 2% |
+
+### ⑦ Gemelos — `pipeline/07_gemelos.py` ✅
+Para cada zona, el vecino a <15 km con mayor contraste. Columnas `gemelo`,
+`gemelo_brecha`, `gemelo_km`. Cobertura 87.7%. Los 20 mejores pares para el pitch
+quedan en `data/gemelos_destacados.json`.
+
+### ⑧ Exportar — `pipeline/08_export_web.py` ✅
+Escribe el JSON columnar a `public/datos/`. **4.4 MB en disco, 1.47 MB comprimido.**
 
 ### Salida
 
@@ -419,7 +446,13 @@ Surprised (hallazgo) · Proud (terminó) · Neutral (sin resultados). ~6 PNG/SVG
 
 4. **El LLM nunca produce cifras.** Solo interpreta intención y redacta con números ya calculados.
 
-5. **No usar el par de El Paso** en los gemelos (base militar, ver 3.5).
+5. **Revisar siempre la fila 65+ de un par de gemelos** antes de usarlo (ver 3.5).
+
+6. **No redondear latitude/longitude junto con el resto de las columnas float.**
+   Pasó una vez: un `round(1)` genérico en `02_score.py` dejó las coordenadas con
+   ~11 km de error, 8,111 zonas compartiendo el mismo punto, y el cálculo de
+   gemelos reportando "0.0 km" entre zonas separadas por kilómetros. Van a 5
+   decimales. El bug estuvo a punto de meter una cifra falsa en el pitch.
 
 ---
 
@@ -434,21 +467,23 @@ Surprised (hallazgo) · Proud (terminó) · Neutral (sin resultados). ~6 PNG/SVG
 - Verificados: los 6 hallazgos de la sección 3
 
 ### Pendiente
-- Fase 1 formalizada en `pipeline/` (7 estaciones como scripts separados y comentados —
-  el repo debe contar la historia solo, es el 15% técnico)
-- Fase 2: mapa + panel lateral
-- Fase 3: gemelos, residuales, asignador
+- Pantalla de **residuales** (peor de lo esperado) — el dato ya está en `residual`
+- Pantalla del **asignador** ("tengo 12 clínicas") — el cierre del pitch
+- Filtro por **arquetipo** en el mapa (uno a la vez, naranja vs gris)
 - Fase 4: copiloto + Codi
-- Video
+- **README** (parte del 15% técnico) — no existe
+- **Deploy a Vercel** — el link público no existe todavía
+- **Video** (35%) — ni empezado
+- Texto de la landing (asignado al compañero)
 
 ### Orden de trabajo
 ```
-FASE 1  Motor              ██████░░░░  (medio hecho)
-FASE 2  Mapa + panel       ░░░░░░░░░░  ← el más largo
-FASE 3  Las 3 historias    ░░░░░░░░░░
+FASE 1  Motor              ██████████  ✅ 8 estaciones
+FASE 2  Mapa + panel       ██████████  ✅
+FASE 3  Las 3 historias    ███░░░░░░░  gemelos ✅ · residuales ⬜ · asignador ⬜
 FASE 4  Copiloto + Codi    ░░░░░░░░░░
-        Diseño y pulido    ░░░░░░░░░░
-        Video              ░░░░░░░░░░
+        README + deploy    ░░░░░░░░░░
+        Video              ░░░░░░░░░░  ← 35%, sin empezar
 ```
 
 **Al terminar la Fase 2 ya hay algo entregable.** Todo lo demás suma pero no es indispensable.

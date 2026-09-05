@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { FlyToInterpolator } from '@deck.gl/core';
@@ -690,6 +691,10 @@ export default function MapPage() {
 
             {/* Style controls */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <Link className="gem-link" to="/gemelos">
+                Ver gemelos geográficos →
+              </Link>
+
               {/* El interruptor que pide la rúbrica: apaga las zonas cuyo
                   margen de error es tan grande que el número no dice nada. */}
               <div>
