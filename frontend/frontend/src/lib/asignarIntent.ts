@@ -50,9 +50,7 @@ export function isAssignIntent(prompt: string): boolean {
 
 // ─── Extracción de parámetros vía LLM ────────────────────────────────────────
 
-const OPENROUTER_API_KEY =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OPENROUTER_API_KEY) ||
-  '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';
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined;
 
 const EXTRACT_SYSTEM_PROMPT = `Eres un asistente que extrae parámetros de asignación de recursos de salud pública a partir de texto en lenguaje natural.
 
