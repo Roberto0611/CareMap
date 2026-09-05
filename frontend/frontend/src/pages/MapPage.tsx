@@ -7,6 +7,7 @@ import { FlyToInterpolator } from '@deck.gl/core';
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
 import { feature as topoFeature } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
+import AIChatModal from '../components/AIChatModal';
 
 // ── Types ─────────────────────────────────────────────────────────────
 // Lo que viene DENTRO del geojson: solo lo necesario para pintar.
@@ -438,11 +439,70 @@ export default function MapPage() {
   const [opacity, setOpacity]     = useState(0.72);
   const [searchVal, setSearchVal] = useState('');
   const [activeState, setActiveState] = useState<string | null>(null);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(true);
+  const [highlightedZctas, setHighlightedZctas] = useState<Set<string>>(new Set());
 
   const [viewState, setViewState] = useState<MapViewState>({
     longitude: -98.58, latitude: 39.83,
     zoom: 3.5, pitch: 0, bearing: 0,
   });
+
+  const handleHighlightZctas = useCallback(
+    (zctas: string[]) => {
+      const zctaSet = new Set(zctas);
+      setHighlightedZctas(zctaSet);
+
+      if (!geoData || zctas.length === 0) return;
+
+      const matched = geoData.features.filter((f) =>
+        zctaSet.has(f.properties.ZCTA5CE20)
+      );
+      if (matched.length > 0) {
+        let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+        matched.forEach((feat) => {
+          const coords =
+            feat.geometry?.type === 'MultiPolygon'
+              ? (feat.geometry as any).coordinates[0][0]
+              : (feat.geometry as any).coordinates[0];
+          if (coords) {
+            coords.forEach((c: number[]) => {
+              if (c[0] < minLon) minLon = c[0];
+              if (c[0] > maxLon) maxLon = c[0];
+              if (c[1] < minLat) minLat = c[1];
+              if (c[1] > maxLat) maxLat = c[1];
+            });
+          }
+        });
+
+        if (minLon !== Infinity) {
+          const centerLon = (minLon + maxLon) / 2;
+          const centerLat = (minLat + maxLat) / 2;
+          const spanLon = maxLon - minLon;
+          const spanLat = maxLat - minLat;
+          const zoom =
+            matched.length === 1
+              ? 10
+              : Math.max(
+                  4,
+                  Math.min(
+                    Math.log2(360 / Math.max(spanLon, spanLat * 1.5)) + 0.5,
+                    9.5
+                  )
+                );
+
+          setViewState((v) => ({
+            ...v,
+            longitude: centerLon,
+            latitude: centerLat,
+            zoom,
+            transitionDuration: 1100,
+            transitionInterpolator: new FlyToInterpolator({ speed: 1.5 }),
+          }));
+        }
+      }
+    },
+    [geoData]
+  );
 
 
   // ── Load both data sources in parallel ──
@@ -530,7 +590,7 @@ export default function MapPage() {
           stroked: true,
           filled: true,
           lineWidthMinPixels: 0.4,
-          lineWidthMaxPixels: 1.5,
+          lineWidthMaxPixels: 6,
           getFillColor: (feature: any) => {
             const p = feature.properties as ZCTAProps;
             // Con el interruptor prendido, las zonas no confiables se apagan
@@ -541,7 +601,17 @@ export default function MapPage() {
               : getColor(p.s);
             return [r, g, b, Math.round(220 * opacity)];
           },
-          getLineColor: [255, 255, 255, 25],
+          getLineColor: (feature: any) => {
+            const p = feature.properties as ZCTAProps;
+            if (highlightedZctas.has(p.ZCTA5CE20)) {
+              return [255, 220, 0, 255]; // Oro brillante para resaltar resultados IA
+            }
+            return [255, 255, 255, 25];
+          },
+          getLineWidth: (feature: any) => {
+            const p = feature.properties as ZCTAProps;
+            return highlightedZctas.has(p.ZCTA5CE20) ? 3.5 : 0.4;
+          },
           onHover: setHoverInfo,
           onClick: (info: PickingInfo) => {
             if (!info.object) { setSelected(null); return; }
@@ -557,7 +627,11 @@ export default function MapPage() {
               }));
             }
           },
-          updateTriggers: { getFillColor: [opacity, activeState, soloConfiables, modo] },
+          updateTriggers: {
+            getFillColor: [opacity, activeState, soloConfiables, modo],
+            getLineColor: [highlightedZctas],
+            getLineWidth: [highlightedZctas],
+          },
         }),
       ]
     : [];
@@ -798,6 +872,16 @@ export default function MapPage() {
             onClose={() => setSelected(null)}
           />
         )}
+
+        {/* AI Chat Modal / Floating Bottom Chat (Apple Monochrome Style) */}
+        <AIChatModal
+          isOpen={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+          onOpen={() => setIsAiModalOpen(true)}
+          onHighlightZctas={handleHighlightZctas}
+          highlightedCount={highlightedZctas.size}
+          onClearHighlight={() => setHighlightedZctas(new Set())}
+        />
       </div>
     </div>
   );
