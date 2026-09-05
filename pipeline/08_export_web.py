@@ -39,8 +39,11 @@ GEMELOS = ROOT / "data" / "gemelos_destacados.json"
 PUBLIC = ROOT / "frontend" / "frontend" / "public" / "datos"
 OUT_JSON = PUBLIC / "zcta_scored.json"
 
-# Lo que necesita el panel. Las coordenadas NO van: la geometría ya las trae.
+# Lo que necesita el panel. Las coordenadas van porque el asignador las usa
+# para separar geográficamente las zonas elegidas (evitar 8 unidades en el
+# mismo barrio); el mapa no las necesita, ya vienen en la geometría.
 CAMPOS = [
+    "latitude", "longitude",
     "county_name", "state_abbr", "state_name", "poblacion",
     "score", "score_social", "score_salud", "confiabilidad",
     "factor1", "factor1_pct", "factor1_detalle",

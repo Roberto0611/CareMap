@@ -120,6 +120,7 @@ export default function GemelosPage() {
             ))}
           </select>
           <Link className="gem-link" to="/map">Ver en el mapa →</Link>
+          <Link className="gem-link" to="/asignador">Asignar recursos →</Link>
         </div>
       </header>
 

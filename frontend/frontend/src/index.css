@@ -288,13 +288,27 @@ html, body {
   top: 16px; right: 16px;
   z-index: 50;
   width: 330px;
+  /* El contenido varía por zona (desglose, residual, indicadores), así que
+     el panel se limita a la altura visible y hace scroll en vez de salirse. */
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg-card-glass);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-highlight);
   border-radius: 16px; padding: 18px 20px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.55);
   animation: slideIn 0.25s cubic-bezier(0.16,1,0.3,1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
 }
+.inspector::-webkit-scrollbar { width: 8px; }
+.inspector::-webkit-scrollbar-track { background: transparent; }
+.inspector::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.16);
+  border-radius: 4px;
+}
+.inspector::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(14px); }
@@ -306,6 +320,14 @@ html, body {
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 14px;
+  /* Al hacer scroll dentro del panel, el nombre de la zona y el botón de
+     cerrar se quedan a la vista: si no, se pierde de qué zona se está viendo. */
+  position: sticky;
+  top: -18px;
+  z-index: 1;
+  margin-top: -18px;
+  padding-top: 18px;
+  background: var(--bg-card);
 }
 
 .zcta-badge {
@@ -821,4 +843,82 @@ html, body {
   font-size: 0.75rem;
   line-height: 1.5;
   color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Asignación de recursos
+   ═══════════════════════════════════════════════════════════════════ */
+
+.asg-controles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  margin-bottom: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--bg-card);
+}
+.asg-select {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+.asg-select option { background: var(--bg-surface); color: var(--text-main); }
+.asg-extremos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.asg-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+.asg-tabla th {
+  padding: 10px 12px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+.asg-tabla td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  color: var(--text-muted);
+}
+.asg-tabla tbody tr:hover td { background: rgba(255, 255, 255, 0.025); }
+
+.asg-num {
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  width: 34px;
+}
+.asg-zcta {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+.asg-lugar { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.asg-score, .asg-pob, .asg-acum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.asg-score { color: var(--acento); font-weight: 600; }
+.asg-pob, .asg-acum { color: var(--text-main); }
+.asg-acum { text-align: right; }
+.asg-detalle { color: var(--text-dim); }
+
+/* En pantalla chica la tabla se desplaza sola en vez de romper el layout */
+@media (max-width: 820px) {
+  .asg-tabla { display: block; overflow-x: auto; white-space: nowrap; }
 }

@@ -17,6 +17,10 @@ export const TEMAS = [
 ] as const;
 
 export interface ZCTADetail {
+  /** Centroide de la zona. El mapa no lo usa (la geometría ya lo trae);
+   *  lo necesita el asignador para separar geográficamente lo que elige. */
+  latitude: number | null;
+  longitude: number | null;
   county_name: string | null;
   state_abbr: string | null;
   state_name: string | null;

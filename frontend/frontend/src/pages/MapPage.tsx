@@ -748,6 +748,9 @@ export default function MapPage() {
               <Link className="gem-link" to="/gemelos">
                 Ver gemelos geográficos →
               </Link>
+              <Link className="gem-link" to="/asignador">
+                Asignar recursos →
+              </Link>
 
               {/* Atenúa las zonas cuya estimación no es confiable, para que
                   el ranking no lo dominen áreas con muy poca población. */}
