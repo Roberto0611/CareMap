@@ -17,6 +17,10 @@ export const TEMAS = [
 ] as const;
 
 export interface ZCTADetail {
+  /** Centroide de la zona. El mapa no lo usa (la geometría ya lo trae);
+   *  lo necesita el asignador para separar geográficamente lo que elige. */
+  latitude: number | null;
+  longitude: number | null;
   county_name: string | null;
   state_abbr: string | null;
   state_name: string | null;
@@ -111,4 +115,21 @@ export function brechaEdad(g: GemeloDestacado): number {
 
 export function esDefendible(g: GemeloDestacado): boolean {
   return brechaEdad(g) <= 5;
+}
+
+/**
+ * Color de la rampa de vulnerabilidad para un valor 0-100.
+ *
+ * Es la MISMA rampa que pinta el mapa, a propósito: si una zona sale coral
+ * en el mapa, su barra de perfil también sale coral. Un mismo valor no puede
+ * tener dos colores según dónde se mire.
+ */
+const RAMPA_HEX = [
+  '#33505f', '#5d6668', '#856455', '#a75f45', '#c65538', '#e3502f', '#ff6b3d',
+];
+
+export function colorVulnerabilidad(v: number | null | undefined): string {
+  if (v === null || v === undefined || Number.isNaN(v)) return '#787c84';
+  const t = Math.min(Math.max(v, 0), 100) / 100;
+  return RAMPA_HEX[Math.min(RAMPA_HEX.length - 1, Math.floor(t * RAMPA_HEX.length))];
 }

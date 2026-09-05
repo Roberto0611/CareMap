@@ -23,6 +23,14 @@
 
   --tab-h: 44px;
   --topbar-h: 60px;
+
+  /* Superficies de los paneles. Un solo lenguaje para toda la interfaz:
+     antes convivían tarjetas blancas sobre un mapa oscuro, que es lo que
+     hacía que se leyera como dos productos pegados. */
+  --panel-bg: rgba(9, 13, 20, 0.94);
+  --panel-line: rgba(255, 255, 255, 0.10);
+  --panel-line-fuerte: rgba(255, 255, 255, 0.18);
+  --radio: 3px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -61,21 +69,16 @@ html, body {
   z-index: 150;
   display: flex;
   align-items: center;
-  background-color: #000000;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 20px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 8px 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  background-color: #05080d;
+  border-bottom: 1px solid var(--panel-line);
+  padding: 0 12px;
   flex-shrink: 0;
 }
 
 .state-grid-strip {
   display: flex;
   align-items: stretch;
-  gap: 8px;
+  gap: 0;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 4px 2px;
@@ -90,55 +93,56 @@ html, body {
 }
 
 /* ── Cuadritos / State Cards (Grid / Tile Style) ───────────────── */
+/* Pestañas de estado. Antes cada una tenía un color pastel distinto,
+   asignado por posición y sin significado: 50 colores compitiendo con la
+   escala del mapa, que sí codifica información. Ahora son tipografía sobre
+   una barra neutra, y el estado activo se marca con el acento. */
 .state-card {
   flex: 0 0 auto;
-  min-width: 120px;
-  max-width: 145px;
-  height: 64px;
-  padding: 8px 14px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0px;
+  min-width: 86px;
+  height: 46px;
+  padding: 0 14px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent !important;
+  border-radius: 0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: left;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, outline 0.12s ease;
+  transition: color 160ms ease, border-color 160ms ease;
   position: relative;
   user-select: none;
   font-family: var(--font-sans);
 }
 
-.state-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-  z-index: 2;
-}
+.state-card:hover .state-card-code { color: var(--text-main); }
 
 .state-card.active {
-  outline: 3px solid #ffffff;
-  outline-offset: -1px;
-  transform: translateY(-2px);
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.35), 0 6px 16px rgba(0, 0, 0, 0.6);
-  z-index: 3;
+  border-bottom-color: var(--acento);
 }
+.state-card.active .state-card-code { color: var(--text-main); }
+.state-card.active .state-card-label { color: var(--text-muted); }
 
 .state-card-code {
-  font-size: 1.35rem;
-  font-weight: 900;
-  color: #000000;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.04em;
+  transition: color 160ms ease;
 }
 
 .state-card-label {
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 0.56rem;
+  font-weight: 400;
+  color: var(--text-dim);
   font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-top: 4px;
+  letter-spacing: 0.08em;
+  margin-top: 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -157,22 +161,37 @@ html, body {
 /* ── Left Panel (Centered vertically in the middle, White Theme) ──── */
 .left-panel {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 20px;
   left: 20px;
   z-index: 50;
-  display: flex; flex-direction: column; gap: 10px;
-  width: 272px;
+  display: flex; flex-direction: column;
+  width: 288px;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+  /* Un solo bloque con divisiones internas, en vez de tarjetas sueltas
+     flotando: menos objetos en pantalla, jerarquía más clara. */
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radio);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.16) transparent;
+}
+.left-panel::-webkit-scrollbar { width: 8px; }
+.left-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.14); border-radius: 4px;
 }
 
 .left-panel .glass-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  padding: 14px 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  color: #000000;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--panel-line);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 16px 18px;
+  color: var(--text-main);
 }
+.left-panel .glass-card:last-child { border-bottom: none; }
 
 /* State info card */
 .state-card-header {
@@ -220,66 +239,86 @@ html, body {
 }
 .search-input {
   width: 100%;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #000000;
-  padding: 9px 12px 9px 36px;
-  border-radius: 8px; font-size: 0.83rem;
-  font-family: var(--font-sans); outline: none;
-  transition: border 0.2s, box-shadow 0.2s;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-line);
+  color: var(--text-main);
+  padding: 9px 12px 9px 34px;
+  border-radius: var(--radio);
+  font-size: 0.82rem;
+  font-family: var(--font-mono); outline: none;
+  transition: border-color 200ms ease;
 }
-.search-input::placeholder { color: #94a3b8; }
-.search-input:focus {
-  border-color: #2563eb;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
+.search-input::placeholder { color: var(--text-dim); font-family: var(--font-sans); }
+.search-input:focus { border-color: var(--panel-line-fuerte); }
+.search-icon { left: 11px; color: var(--text-dim); }
 
 .field-label {
-  display: block; margin-bottom: 6px;
-  font-size: 0.68rem; font-weight: 700;
-  color: #334155; text-transform: uppercase; letter-spacing: 0.07em;
+  display: block; margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.63rem; font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.12em;
 }
 
 /* Selects / Sliders */
+/* Sin `appearance: none`, Windows dibuja el control nativo y descarta el
+   fondo: el desplegable salía blanco sobre la interfaz oscura. La flecha
+   se redibuja como fondo SVG porque al quitar la apariencia nativa
+   desaparece también. */
 .color-select {
   width: 100%;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #000000;
-  padding: 8px 12px; border-radius: 8px;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  background-color: rgba(255, 255, 255, 0.04);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238899b4' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid var(--panel-line);
+  color: var(--text-main);
+  padding: 8px 30px 8px 10px;
+  border-radius: var(--radio);
   font-size: 0.82rem; outline: none; cursor: pointer;
   font-family: var(--font-sans);
+  transition: border-color 200ms ease;
 }
-.color-select option {
-  background: #ffffff;
-  color: #000000;
-}
+.color-select:hover { border-color: var(--panel-line-fuerte); }
+.color-select:focus { border-color: var(--panel-line-fuerte); }
+/* El desplegable abierto lo pinta el sistema; se le fija color-scheme para
+   que lo dibuje en oscuro en vez de blanco. */
+.color-select { color-scheme: dark; }
+.color-select option { background: #0d1424; color: var(--text-main); }
 
 .slider-row { display: flex; align-items: center; gap: 10px; }
 .slider {
   -webkit-appearance: none; appearance: none;
-  flex: 1; height: 5px; border-radius: 3px;
-  background: #cbd5e1;
+  flex: 1; height: 2px; border-radius: 0;
+  background: var(--panel-line-fuerte);
   outline: none;
 }
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 15px; height: 15px;
-  border-radius: 50%; background: #0f172a;
-  box-shadow: 0 0 4px rgba(0,0,0,0.3); cursor: pointer;
+  -webkit-appearance: none; width: 11px; height: 11px;
+  border-radius: 0; background: var(--text-main);
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 11px; height: 11px; border: none; border-radius: 0;
+  background: var(--text-main); cursor: pointer;
 }
 .slider-val {
-  font-family: var(--font-mono); font-size: 0.75rem;
-  color: #000000; font-weight: 700; min-width: 30px;
+  font-family: var(--font-mono); font-size: 0.74rem;
+  color: var(--text-main); font-variant-numeric: tabular-nums;
+  min-width: 34px; text-align: right;
 }
 
 .legend-bar {
   height: 6px; border-radius: 3px; margin: 8px 0 4px;
-  background: linear-gradient(90deg, #1a365d, #2b6cb0, #22d3ee, #34d399, #fbbf24, #fb7185);
+  background: linear-gradient(
+    90deg, #33505f, #5d6668, #856455, #a75f45, #c65538, #e3502f, #ff6b3d);
 }
 .legend-ends {
   display: flex; justify-content: space-between;
-  font-size: 0.68rem; color: #64748b; font-weight: 600; font-family: var(--font-mono);
+  font-size: 0.62rem; color: var(--text-dim);
+  font-weight: 400; font-family: var(--font-mono);
+  letter-spacing: 0.06em;
 }
 
 /* ── Inspector Drawer (Apple Monochrome Style - Compact) ───────── */
@@ -287,6 +326,7 @@ html, body {
   position: absolute;
   top: 14px; right: 16px;
   z-index: 50;
+<<<<<<< HEAD
   width: 295px;
   max-height: calc(100vh - 95px);
   overflow-y: auto;
@@ -311,7 +351,29 @@ html, body {
 .inspector::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
+=======
+  width: 330px;
+  /* El contenido varía por zona (desglose, residual, indicadores), así que
+     el panel se limita a la altura visible y hace scroll en vez de salirse. */
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radio); padding: 18px 20px;
+  animation: slideIn 0.2s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
+.inspector::-webkit-scrollbar { width: 8px; }
+.inspector::-webkit-scrollbar-track { background: transparent; }
+.inspector::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.16);
+  border-radius: 4px;
+}
+.inspector::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(14px); }
@@ -320,6 +382,7 @@ html, body {
 
 .inspector-head {
   display: flex; align-items: flex-start; justify-content: space-between;
+<<<<<<< HEAD
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 10px;
@@ -331,15 +394,38 @@ html, body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.45);
+=======
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 14px;
+  /* Al hacer scroll dentro del panel, el nombre de la zona y el botón de
+     cerrar se quedan a la vista: si no, se pierde de qué zona se está viendo. */
+  position: sticky;
+  top: -18px;
+  z-index: 1;
+  margin-top: -18px;
+  padding-top: 18px;
+  background: var(--panel-bg);
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 
+/* Identidad de la zona en monoespaciada plana. El cian con resplandor que
+   había antes es un efecto decorativo: llama más la atención que el dato. */
 .zcta-badge {
+<<<<<<< HEAD
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-sans);
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff;
   text-shadow: none;
+=======
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-main);
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 
 .close-btn {
@@ -360,15 +446,33 @@ html, body {
   color: #ffffff;
 }
 
+<<<<<<< HEAD
 .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .prop-item {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 7px 10px;
+=======
+/* Etiqueta a la izquierda, valor a la derecha, separados por un filete.
+   Antes cada dato vivía en su propia cajita redondeada dentro del panel
+   redondeado: cajas dentro de cajas, que llena la pantalla de bordes y
+   dificulta comparar los valores entre sí. */
+.prop-grid { display: block; }
+.prop-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--panel-line);
+  background: none;
+  border-radius: 0;
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
-.prop-item.full { grid-column: span 2; }
+.prop-grid .prop-item:last-child { border-bottom: none; }
 .prop-key {
+<<<<<<< HEAD
   font-size: 0.58rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.4);
@@ -381,27 +485,45 @@ html, body {
   color: #ffffff;
   margin-top: 2px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-sans);
+=======
+  font-size: 0.78rem; font-weight: 400;
+  color: var(--text-muted);
+  text-transform: none; letter-spacing: 0;
+}
+.prop-val {
+  font-size: 0.86rem; font-weight: 500;
+  color: var(--text-main); margin-top: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 
 /* ── Tooltip ─────────────────────────────────────────────────── */
 .deck-tooltip {
   position: absolute; pointer-events: none; z-index: 200;
-  background: var(--bg-card);
-  border: 1px solid var(--border-highlight);
-  border-radius: 10px; padding: 10px 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-line-fuerte);
+  border-radius: var(--radio); padding: 9px 12px;
   font-family: var(--font-sans);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
-  max-width: 220px; transform: translate(14px, -10px);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  min-width: 190px; transform: translate(14px, -10px);
 }
 .tt-zcta {
-  font-size: 0.85rem; font-weight: 800; color: var(--accent-cyan);
-  margin-bottom: 4px; font-family: var(--font-mono);
+  font-size: 0.78rem; font-weight: 500; color: var(--text-main);
+  padding-bottom: 6px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--panel-line);
+  font-family: var(--font-mono); letter-spacing: 0.02em;
 }
 .tt-row {
-  font-size: 0.75rem; color: var(--text-muted);
-  display: flex; justify-content: space-between; gap: 12px;
+  font-size: 0.73rem; color: var(--text-muted);
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 2px 0;
 }
-.tt-val { color: var(--text-main); font-weight: 600; }
+.tt-val {
+  color: var(--text-main); font-weight: 500;
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+}
 
 /* ── Loading ─────────────────────────────────────────────────── */
 .loading-screen {
@@ -455,6 +577,7 @@ html, body {
   --conf-baja: #d03b3b;
 }
 
+<<<<<<< HEAD
 /* El score manda visualmente: número grande y limpio estilo Apple */
 .score-hero {
   padding: 10px 0 10px;
@@ -468,9 +591,24 @@ html, body {
   line-height: 1;
   letter-spacing: -0.03em;
   color: #ffffff;
+=======
+/* El score manda visualmente: número enorme, no una gráfica */
+/* El score se lee como una cifra de reporte, no como un widget centrado. */
+.score-hero {
+  padding: 16px 0 14px;
+  border-bottom: 1px solid var(--panel-line);
+}
+.score-num {
+  font-family: var(--font-mono);
+  font-size: 3.4rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
   font-variant-numeric: tabular-nums;
 }
 .score-cap {
+<<<<<<< HEAD
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -493,6 +631,35 @@ html, body {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: rgba(255, 255, 255, 0.88);
+=======
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* Confiabilidad SIEMPRE con ícono + texto, nunca solo color:
+   ~8% de los hombres no distingue rojo de verde. */
+/* Estado como línea con marcador, no como pastilla: las pastillas de
+   colores son lenguaje de app de consumo, no de instrumento de trabajo. */
+.conf-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  border: none;
+  padding: 0;
+}
+.conf-chip::before {
+  content: '';
+  width: 7px; height: 7px;
+  background: currentColor;
+  flex: 0 0 auto;
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 .conf-alta  { border-color: rgba(255, 255, 255, 0.3); }
 .conf-media { border-color: rgba(255, 255, 255, 0.18); }
@@ -516,15 +683,29 @@ html, body {
 }
 .bar-track {
   height: 5px;
+<<<<<<< HEAD
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
+=======
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
   overflow: hidden;
 }
+/* El color lo pone el componente con colorVulnerabilidad(): así una barra
+   en el percentil 5 sale pizarra y una en el 98 sale coral, igual que en el
+   mapa. Antes todas eran coral y solo cambiaba el largo, lo que pintaba de
+   rojo hasta los perfiles sanos. */
 .bar-fill {
   height: 100%;
+<<<<<<< HEAD
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.4);
   transition: width 200ms ease;
+=======
+  border-radius: 2px;
+  transition: width 200ms ease, background 200ms ease;
+>>>>>>> dbb380a970eb027dd0ea84c34341df78fe1fa295
 }
 .bar-row.dominante .bar-fill {
   background: #ffffff;
@@ -547,41 +728,49 @@ html, body {
 .desglose-note strong { color: #ffffff; font-weight: 600; }
 
 /* El interruptor de confiabilidad */
+/* Casilla de verificación, no palanca: el gesto es "aplicar un filtro",
+   que es lo que un instrumento de análisis hace, no encender algo. */
 .conf-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface);
+  padding: 0;
+  border: none;
+  background: transparent;
   color: var(--text-muted);
   font-family: var(--font-sans);
   font-size: 0.8rem;
+  text-align: left;
   cursor: pointer;
+  transition: color 200ms ease;
+}
+.conf-toggle:hover { color: var(--text-main); }
+.conf-toggle.on { color: var(--text-main); }
+.conf-toggle-track {
+  flex: 0 0 14px;
+  width: 14px; height: 14px;
+  border: 1px solid var(--panel-line-fuerte);
+  border-radius: 2px;
+  background: transparent;
+  position: relative;
   transition: all 200ms ease;
 }
-.conf-toggle:hover { border-color: var(--border-highlight); }
-.conf-toggle.on { color: var(--text-main); border-color: var(--acento); }
-.conf-toggle-track {
-  flex: 0 0 32px;
-  height: 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  position: relative;
-  transition: background 200ms ease;
+.conf-toggle.on .conf-toggle-track {
+  background: var(--acento);
+  border-color: var(--acento);
 }
-.conf-toggle.on .conf-toggle-track { background: var(--acento); }
 .conf-toggle-knob {
   position: absolute;
-  top: 2px; left: 2px;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  transition: transform 200ms ease;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  /* palomita */
+  background:
+    linear-gradient(45deg, transparent 45%, #fff 45%, #fff 58%, transparent 58%) no-repeat 2px 4px / 6px 6px,
+    linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 58%, transparent 58%) no-repeat 5px 1px / 7px 8px;
 }
-.conf-toggle.on .conf-toggle-knob { transform: translateX(14px); }
+.conf-toggle.on .conf-toggle-knob { opacity: 1; }
 
 /* Leyenda: la rampa real, no un degradado inventado */
 .legend-bar {
@@ -601,9 +790,9 @@ html, body {
   letter-spacing: 0;
   color: var(--text-dim);
 }
+/* El tema dominante se marca con la tipografía, no repintando la barra:
+   el color de la barra ya está diciendo otra cosa (el nivel). */
 .bar-row.dominante .bar-label { color: var(--text-main); font-weight: 600; }
-.bar-row.dominante .bar-fill  { background: var(--acento); }
-.bar-row:not(.dominante) .bar-fill { opacity: 0.55; }
 
 /* ═══════════════════════════════════════════════════════════════════
    Comparador de gemelos geográficos
@@ -626,19 +815,26 @@ html, body {
   margin-bottom: 28px;
 }
 .gem-title {
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  font-weight: 700;
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  font-weight: 600;
   margin: 6px 0 0;
   letter-spacing: -0.02em;
 }
 .gem-nav { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .gem-link {
-  color: var(--acento);
+  display: inline-block;
+  color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   white-space: nowrap;
+  border-bottom: 1px solid var(--panel-line);
+  padding-bottom: 2px;
+  transition: color 200ms ease, border-color 200ms ease;
 }
-.gem-link:hover { text-decoration: underline; }
+.gem-link:hover {
+  color: var(--text-main);
+  border-bottom-color: var(--acento);
+}
 
 /* Los tres números del titular resumen la comparación */
 .gem-titulares {
@@ -648,16 +844,17 @@ html, body {
   margin-bottom: 22px;
 }
 .gem-tit {
-  padding: 18px 20px;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radio);
   background: var(--bg-card);
 }
 .gem-tit.destacado { border-color: var(--acento); }
 .gem-tit-num {
   font-family: var(--font-mono);
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  font-weight: 700;
+  font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -690,13 +887,13 @@ html, body {
   align-items: stretch;
 }
 .gem-col {
-  padding: 24px;
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
+  padding: 22px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radio);
   background: var(--bg-card);
 }
-.gem-peor  { border-color: rgba(255, 107, 61, 0.4); }
-.gem-mejor { border-color: rgba(255, 255, 255, 0.09); }
+.gem-peor  { border-color: rgba(255, 107, 61, 0.35); }
+.gem-mejor { border-color: var(--panel-line); }
 
 .gem-zcta {
   font-family: var(--font-mono);
@@ -706,11 +903,14 @@ html, body {
 }
 .gem-score {
   font-family: var(--font-mono);
-  font-size: clamp(2.6rem, 6vw, 4rem);
-  font-weight: 700;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
   line-height: 1.05;
   font-variant-numeric: tabular-nums;
 }
+/* Mismo coral que el extremo alto del mapa: el color significa lo mismo
+   en las dos pantallas. */
 .gem-peor  .gem-score { color: var(--vuln-7); }
 .gem-score-cap {
   font-family: var(--font-mono);
@@ -721,10 +921,12 @@ html, body {
 .gem-arq {
   display: inline-block;
   margin-top: 12px;
-  padding: 4px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  font-size: 0.72rem;
+  padding: 3px 9px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radio);
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
 }
 
@@ -733,7 +935,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   padding: 7px 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--panel-line);
   font-size: 0.84rem;
   color: var(--text-muted);
 }
@@ -752,11 +954,15 @@ html, body {
   padding: 0 18px;
 }
 .gem-vs-linea { flex: 1; width: 1px; background: var(--border-color); }
+/* La distancia es un dato neutro, no una alerta ni un destacado: iba en
+   acento sin motivo, y coincidía con el coral del score en la misma
+   pantalla —dos naranjas casi iguales se leen como descuido. */
 .gem-vs-km {
   padding: 8px 0;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--acento);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
   white-space: nowrap;
 }
 
@@ -779,17 +985,7 @@ html, body {
 
 /* El selector global está estilizado en claro para el panel del mapa;
    aquí se sobreescribe solo dentro de gemelos para no tocar esa página. */
-.gem-nav .color-select {
-  width: auto;
-  min-width: 230px;
-  background: var(--bg-surface);
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
-.gem-nav .color-select option {
-  background: var(--bg-surface);
-  color: var(--text-main);
-}
+.gem-nav .color-select { width: auto; min-width: 240px; }
 
 .gem-metodo {
   max-width: 78ch;
@@ -801,31 +997,31 @@ html, body {
 .gem-metodo em { color: var(--conf-media); font-style: normal; }
 
 /* Selector de qué mide el color del mapa */
+/* Control segmentado: dos opciones excluyentes, marcadas por una barra
+   inferior en vez de un bloque de color relleno. */
 .modo-switch {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  padding: 3px;
-  border: 1px solid var(--border-color);
-  border-radius: 9px;
-  background: var(--bg-surface);
+  gap: 0;
+  border-bottom: 1px solid var(--panel-line);
 }
 .modo-switch button {
-  padding: 7px 6px;
+  padding: 8px 4px 9px;
   border: none;
-  border-radius: 6px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.76rem;
+  text-align: left;
   cursor: pointer;
-  transition: all 200ms ease;
+  transition: color 200ms ease, border-color 200ms ease;
 }
-.modo-switch button:hover { color: var(--text-main); }
+.modo-switch button:hover { color: var(--text-muted); }
 .modo-switch button.on {
-  background: var(--acento);
-  color: #fff;
-  font-weight: 600;
+  color: var(--text-main);
+  border-bottom-color: var(--acento);
 }
 .modo-nota {
   margin: 8px 0 0;
@@ -1276,5 +1472,77 @@ html, body {
   color: #ffffff;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   Asignación de recursos
+   ═══════════════════════════════════════════════════════════════════ */
 
+.asg-controles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  margin-bottom: 22px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radio);
+  background: var(--bg-card);
+}
 
+.asg-extremos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.asg-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+.asg-tabla th {
+  padding: 10px 12px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+.asg-tabla td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  color: var(--text-muted);
+}
+.asg-tabla tbody tr:hover td { background: rgba(255, 255, 255, 0.025); }
+
+.asg-num {
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  width: 34px;
+}
+.asg-zcta {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+.asg-lugar { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.asg-score, .asg-pob, .asg-acum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* El índice iba en naranja en las 8 filas: repetido deja de destacar
+   nada. El acento se reserva para la cifra de encabezado. */
+.asg-score { color: var(--text-main); font-weight: 500; }
+.asg-pob, .asg-acum { color: var(--text-main); }
+.asg-acum { text-align: right; }
+.asg-detalle { color: var(--text-dim); }
+
+/* En pantalla chica la tabla se desplaza sola en vez de romper el layout */
+@media (max-width: 820px) {
+  .asg-tabla { display: block; overflow-x: auto; white-space: nowrap; }
+}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  cargarDatos, TEMAS, brechaEdad, esDefendible,
+  cargarDatos, TEMAS, brechaEdad, esDefendible, colorVulnerabilidad,
   type Datos, type GemeloDestacado, type ZCTADetail,
 } from '../lib/datos';
 
@@ -59,7 +59,10 @@ function Columna({
             <div className="bar-row" key={nombre}>
               <div className="bar-label">{nombre}</div>
               <div className="bar-track">
-                <div className="bar-fill" style={{ width: `${v}%` }} />
+                <div
+                  className="bar-fill"
+                  style={{ width: `${v}%`, background: colorVulnerabilidad(v) }}
+                />
               </div>
               <div className="bar-pct">{v.toFixed(0)}</div>
             </div>
@@ -120,6 +123,7 @@ export default function GemelosPage() {
             ))}
           </select>
           <Link className="gem-link" to="/map">Ver en el mapa →</Link>
+          <Link className="gem-link" to="/asignador">Asignar recursos →</Link>
         </div>
       </header>
 

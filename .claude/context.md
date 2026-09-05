@@ -193,11 +193,38 @@ datarush-3/
 │   ├── public/datos/zcta_scored.json     <- detalle del panel
 │   ├── src/lib/datos.ts                  <- carga/desempaqueta el JSON columnar
 │   └── src/pages/
-│       ├── LandingPage.tsx    /          (texto pendiente — lo ve el compañero)
-│       ├── MapPage.tsx        /map       ✅ dos modos: vulnerabilidad · residual
-│       └── GemelosPage.tsx    /gemelos   ✅
+│       ├── LandingPage.tsx     /            (texto pendiente — lo ve el compañero)
+│       ├── MapPage.tsx         /map         ✅ dos modos: vulnerabilidad · residual
+│       ├── GemelosPage.tsx     /gemelos     ✅
+│       └── AsignadorPage.tsx   /asignador   ✅
 └── api/                       FastAPI. ~30 líneas. (pendiente)
 ```
+
+### ⚠️ Cuál es la base maestra
+
+Hay dos parquets y el nombre engaña:
+
+| Archivo | Qué es | Filas × cols |
+|---|---|---|
+| `data/zcta_master_analytical.parquet` | **Paso intermedio.** Los 36 indicadores en bruto + MOE, ya limpios y unidos. **NO tiene score, arquetipo ni nada calculado**, pese a llamarse "master". | 31,742 × 137 |
+| `data/zcta_scored.parquet` | **← LA MAESTRA DEL PRODUCTO.** Todo lo derivado. | 31,742 × 33 |
+
+Solo existen en la maestra: `poblacion`, `score`, `score_social`, `score_salud`,
+`confiabilidad`, `n_ruido`, `factor1`, `factor1_pct`, `factor1_detalle`,
+`t_socioeco`, `t_vivienda`, `t_acceso`, `t_enfermedad`, `t_conductas`,
+`salud_esperada`, `residual`, `arquetipo`, `arquetipo_desc`, `gemelo`,
+`gemelo_brecha`, `gemelo_km`.
+
+Se usa el intermedio solo para indicadores crudos que no entran al score
+(artritis, alcohol, cáncer) o para consultar el MOE de un indicador puntual.
+
+> **`zcta_scored.parquet` se construye por capas:** 05, 06 y 07 le AGREGAN
+> columnas al mismo archivo. Correrlos fuera de orden no truena — simplemente
+> deja columnas faltantes, que es peor porque no avisa.
+
+> **Ningún parquet está en Git** (9 MB, se regeneran). Sí está versionado lo que
+> sirve la web (`public/datos/`, `public/mapa/`), para que el sitio funcione sin
+> correr el pipeline.
 
 **Orden para regenerar todo desde cero:**
 ```
@@ -489,8 +516,7 @@ Surprised (hallazgo) · Proud (terminó) · Neutral (sin resultados). ~6 PNG/SVG
 - `RESUMEN_RETO.md` — resumen del reto
 - Verificados: los 6 hallazgos de la sección 3
 
-### Pendiente
-- Pantalla del **asignador** ("tengo 12 clínicas") — el cierre del pitch
+### Pendiente ("tengo 12 clínicas") — el cierre del pitch
 - Filtro por **arquetipo** en el mapa (uno a la vez, naranja vs gris)
 - Fase 4: copiloto + Codi
 - **README** (parte del 15% técnico) — no existe
@@ -502,7 +528,7 @@ Surprised (hallazgo) · Proud (terminó) · Neutral (sin resultados). ~6 PNG/SVG
 ```
 FASE 1  Motor              ██████████  ✅ 8 estaciones
 FASE 2  Mapa + panel       ██████████  ✅
-FASE 3  Las 3 historias    ███████░░░  gemelos ✅ · residuales ✅ · asignador ⬜
+FASE 3  Las 3 historias    ██████████  ✅ gemelos · residuales · asignador
 FASE 4  Copiloto + Codi    ░░░░░░░░░░
         README + deploy    ░░░░░░░░░░
         Video              ░░░░░░░░░░  ← 35%, sin empezar
@@ -526,10 +552,58 @@ C puede arrancar con datos falsos mientras A termina.
 
 ---
 
-## 10. Preguntas abiertas
+## 10. El usuario y la decisión ✅ DECIDIDO
+
+> **Usuario:** un **director estatal de salud pública** repartiendo presupuesto.
+>
+> **Decisión concreta:** dónde colocar un número limitado de recursos
+> (unidades móviles, brigadas, programas) dentro de su estado.
+>
+> **Criterio:** **personas alcanzadas por peso invertido.**
+
+Todo lo demás se deriva de esto:
+
+- **El asignador** optimiza alcance ponderado por necesidad, no solo gravedad.
+- **El pitch** se cuenta desde esa persona: abre con el problema que ella no puede
+  ver hoy (los gemelos), le muestra que su lista obvia está contaminada por ruido
+  (el interruptor), le revela dónde su dinero rinde más (el residual) y cierra
+  entregándole la lista (el asignador).
+- **La unidad de análisis** en la demo es **un estado**, no el país: es el ámbito
+  real de decisión de ese usuario. El mapa nacional sirve de contexto.
+
+### El hallazgo que sostiene el criterio (verificado, Texas, 8 unidades)
+
+| Criterio | Alcance |
+|---|---|
+| Las 8 zonas con peor score (lo obvio) | 199,904 personas |
+| Ponderando también población | **632,397 personas** |
+
+**Mismo presupuesto, 3.2× más gente.** El matiz honesto: no es que el segundo
+criterio sea "el correcto" — Presidio (score 89, 3,824 hab) sigue siendo urgente.
+Lo que hoy no existe es **ver el intercambio**. El asignador no decide: hace
+visible lo que se gana y lo que se cede con cada criterio.
+
+### El asignador — `src/lib/asignar.ts` + `/asignador`
+
+Optimiza `gravedad^(1-b) × alcance^b`, donde `b` es un control del usuario
+(gravedad ↔ alcance). **El peso NO está escondido en el código a propósito:**
+el punto de la herramienta es hacer visible el intercambio, no resolverlo por
+el director. Filtra a score ≥ 60 y confiabilidad alta, y ofrece una separación
+mínima en km para no amontonar todos los recursos en una sola ciudad.
+
+Verificado en Texas con 8 recursos:
+
+| Ajuste | Alcance | Qué elige |
+|---|---|---|
+| Solo gravedad | 199,904 | El Paso, Presidio — extremas y chicas |
+| Equilibrado (default) | 629,365 | |
+| Solo alcance | 646,205 | Las grandes del Valle y Dallas |
+| Equilibrado + 60 km | 582,579 | Suelta una zona de Hidalgo, agarra Houston |
+
+Además reporta **363 zonas excluidas de TX por baja confiabilidad** — ahí es
+donde la historia del MOE aterriza en una consecuencia presupuestal concreta.
+
+## 11. Preguntas abiertas
 
 - ¿Hay ronda presencial de demo en vivo? (la rúbrica lo sugiere; confirmar con organizadores)
-- ¿Quién es el usuario exacto y qué decisión concreta toma? — **la más importante, sin resolver.**
-  De aquí sale la narrativa del pitch. Candidatos: director de salud estatal repartiendo
-  presupuesto; ONG eligiendo dónde poner unidades móviles; aseguradora.
 - Nombre del producto y del equipo
