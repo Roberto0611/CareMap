@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, X } from 'lucide-react';
 import { generateSQL } from '../lib/sqlGenerator';
 import { executeSQL, type QueryResult } from '../lib/insforgeClient';
 import bloudIcon from '../bloud.svg';
@@ -13,6 +14,7 @@ interface AIChatModalProps {
   onHighlightZctas: (zctas: string[]) => void;
   highlightedCount?: number;
   onClearHighlight?: () => void;
+  onSearchZcta?: (zcta: string) => void;
 }
 
 const SAMPLE_QUERIES = [
@@ -31,11 +33,21 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
   onHighlightZctas,
   highlightedCount = 0,
   onClearHighlight,
+  onSearchZcta,
 }) => {
   const [prompt, setPrompt] = useState('');
+  const [zctaQuery, setZctaQuery] = useState('');
+  const [isZctaExpanded, setIsZctaExpanded] = useState(false);
+  const zctaInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [agentStatus, setAgentStatus] = useState<'idle' | 'thinking' | 'finished' | 'later'>('idle');
   const [generatedSql, setGeneratedSql] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isZctaExpanded) {
+      zctaInputRef.current?.focus();
+    }
+  }, [isZctaExpanded]);
   const [querySource, setQuerySource] = useState<'llm' | 'template' | null>(null);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -299,8 +311,53 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
           ))}
         </div>
 
-        {/* Input con icono y botón de envío estilo Apple */}
+        {/* Input con buscador ZCTA al lado izquierdo y botón de envío */}
         <form onSubmit={handleSubmit} className="ai-input-row">
+          {/* Botón Search de Lucide que se expande al hacer click */}
+          {!isZctaExpanded ? (
+            <button
+              type="button"
+              className="ai-zcta-trigger-btn"
+              onClick={() => setIsZctaExpanded(true)}
+              title="Buscar ZCTA específico"
+            >
+              <Search size={18} strokeWidth={2.2} />
+            </button>
+          ) : (
+            <div className="ai-zcta-search-wrap">
+              <Search size={15} strokeWidth={2.2} className="ai-zcta-search-icon" />
+              <input
+                ref={zctaInputRef}
+                type="text"
+                className="ai-zcta-search-input"
+                placeholder="Buscar ZCTA…"
+                value={zctaQuery}
+                onChange={(e) => setZctaQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (onSearchZcta && zctaQuery.trim()) {
+                      onSearchZcta(zctaQuery);
+                    }
+                  } else if (e.key === 'Escape') {
+                    setIsZctaExpanded(false);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="ai-zcta-close-btn"
+                onClick={() => {
+                  setIsZctaExpanded(false);
+                  setZctaQuery('');
+                }}
+                title="Cerrar búsqueda"
+              >
+                <X size={13} strokeWidth={2.2} />
+              </button>
+            </div>
+          )}
+
           <input
             type="text"
             className="ai-chat-input"

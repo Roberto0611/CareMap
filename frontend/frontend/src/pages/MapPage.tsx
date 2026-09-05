@@ -440,8 +440,8 @@ export default function MapPage() {
   const [soloConfiables, setSoloConfiables] = useState(false);
   const [modo, setModo] = useState<Modo>('vulnerabilidad');
   const [opacity, setOpacity]     = useState(0.72);
-  const [searchVal, setSearchVal] = useState('');
   const [activeState, setActiveState] = useState<string | null>(null);
+  const [showLeftPanel, setShowLeftPanel] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(true);
   const [highlightedZctas, setHighlightedZctas] = useState<Set<string>>(new Set());
 
@@ -670,17 +670,16 @@ export default function MapPage() {
     []
   );
 
-  // ── Search ──
-  const handleSearch = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      const q = searchVal.trim().padStart(5, '0');
+  // ── Search ZCTA ──
+  const handleSearchZcta = useCallback(
+    (zctaInput: string) => {
+      const q = zctaInput.trim().padStart(5, '0');
       if (!geoData) return;
 
       const feat = geoData.features.find(
         (f) => f.properties.ZCTA5CE20 === q
       );
-      if (!feat) { alert(`ZCTA "${searchVal.trim()}" no encontrado.`); return; }
+      if (!feat) { alert(`ZCTA "${zctaInput.trim()}" no encontrado.`); return; }
 
       // If state tab is active, switch to its state if needed
       if (stateMap) {
@@ -705,7 +704,7 @@ export default function MapPage() {
         }));
       }
     },
-    [geoData, stateMap, searchVal, activeState]
+    [geoData, stateMap, activeState]
   );
 
   const stateLabel = activeState
@@ -747,8 +746,37 @@ export default function MapPage() {
 
         <Tooltip info={hoverInfo} />
 
-        {/* Left panel */}
+        {/* Botón en la esquina superior izquierda que despliega el menú de información */}
         {!loading && (
+          <button
+            type="button"
+            className={`toggle-info-btn${showLeftPanel ? ' active' : ''}`}
+            onClick={() => setShowLeftPanel((v) => !v)}
+            title="Mostrar Información"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <span>Mostrar Informacion</span>
+            <span style={{ fontSize: '0.65rem', opacity: 0.75 }}>
+              {showLeftPanel ? '▲' : '▼'}
+            </span>
+          </button>
+        )}
+
+        {/* Left panel desplegable */}
+        {!loading && showLeftPanel && (
           <div className="left-panel">
             {/* State info card (only when state active) */}
             {activeState && stateMap && (
@@ -773,25 +801,6 @@ export default function MapPage() {
                 </div>
               </div>
             )}
-
-            {/* Search */}
-            <div className="glass-card">
-              <form onSubmit={handleSearch} className="search-wrap">
-                <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  type="text" className="search-input"
-                  placeholder={activeState
-                    ? `Buscar ZCTA en ${stateLabel}…`
-                    : 'Buscar ZCTA (ej. 30114)…'}
-                  value={searchVal}
-                  onChange={(e) => setSearchVal(e.target.value)}
-                />
-              </form>
-            </div>
 
             {/* Style controls */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -887,6 +896,7 @@ export default function MapPage() {
           onHighlightZctas={handleHighlightZctas}
           highlightedCount={highlightedZctas.size}
           onClearHighlight={() => setHighlightedZctas(new Set())}
+          onSearchZcta={handleSearchZcta}
         />
       </div>
     </div>
