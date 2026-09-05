@@ -381,3 +381,150 @@ html, body, #root {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bg-surface); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Panel de vulnerabilidad — score, confiabilidad y desglose
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Rampa de riesgo: pizarra fría (seguro) -> rojo coral (riesgo).
+   Verificada con simulación de daltonismo: luminancia creciente,
+   contraste 2.15:1 contra el fondo, separación 21.5 bajo deuteranopia,
+   protanopia y tritanopia. No es verde->rojo a propósito: ese par
+   colapsa para ~8% de los hombres. */
+:root {
+  --vuln-1: #33505f;
+  --vuln-4: #a75f45;
+  --vuln-7: #ff6b3d;
+  --acento: #eb6834;
+  --conf-alta: #0ca30c;
+  --conf-media: #fab219;
+  --conf-baja: #d03b3b;
+}
+
+/* El score manda visualmente: número enorme, no una gráfica */
+.score-hero {
+  padding: 18px 0 14px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+.score-num {
+  font-family: var(--font-mono);
+  font-size: 4.2rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
+.score-cap {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* Confiabilidad SIEMPRE con ícono + texto, nunca solo color:
+   ~8% de los hombres no distingue rojo de verde. */
+.conf-chip {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  border: 1px solid currentColor;
+}
+.conf-alta  { color: var(--conf-alta); }
+.conf-media { color: var(--conf-media); }
+.conf-baja  { color: var(--conf-baja); }
+
+/* Desglose: dos zonas con el mismo score salen con barras distintas */
+.desglose {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 1fr 74px 34px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+}
+.bar-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--vuln-7);
+  transition: width 200ms ease;
+}
+.bar-pct {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+  text-align: right;
+}
+.desglose-note {
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.desglose-note strong { color: var(--acento); font-weight: 600; }
+
+/* El interruptor de confiabilidad */
+.conf-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.conf-toggle:hover { border-color: var(--border-highlight); }
+.conf-toggle.on { color: var(--text-main); border-color: var(--acento); }
+.conf-toggle-track {
+  flex: 0 0 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  position: relative;
+  transition: background 200ms ease;
+}
+.conf-toggle.on .conf-toggle-track { background: var(--acento); }
+.conf-toggle-knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 200ms ease;
+}
+.conf-toggle.on .conf-toggle-knob { transform: translateX(14px); }
+
+/* Leyenda: la rampa real, no un degradado inventado */
+.legend-bar {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    #33505f, #5d6668, #856455, #a75f45, #c65538, #e3502f, #ff6b3d
+  );
+}

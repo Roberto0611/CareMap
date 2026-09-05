@@ -5,14 +5,41 @@ import { FlyToInterpolator } from '@deck.gl/core';
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
 
 // ── Types ─────────────────────────────────────────────────────────────
+// Lo que viene DENTRO del geojson: solo lo necesario para pintar.
+// s = score 0-100 · c = confiabilidad (2 alta, 1 media, 0 baja, -1 sin datos)
 interface ZCTAProps {
   ZCTA5CE20: string;
-  AFFGEOID20: string;
-  GEOID20: string;
-  NAME20: string;
-  LSAD20: string;
-  ALAND20: number;
-  AWATER20: number;
+  s: number | null;
+  c: -1 | 0 | 1 | 2;
+}
+
+// Lo que vive en zcta_scored.json y se busca por ZCTA al hacer click.
+interface ZCTADetail {
+  county_name: string | null;
+  state_abbr: string | null;
+  state_name: string | null;
+  poblacion: number | null;
+  score: number | null;
+  score_social: number | null;
+  score_salud: number | null;
+  confiabilidad: string | null;
+  factor1: string | null;   factor1_pct: number | null;
+  factor1_detalle: string | null;
+  factor2: string | null;   factor2_pct: number | null;
+  factor3: string | null;   factor3_pct: number | null;
+  factor4: string | null;   factor4_pct: number | null;
+  POV150_value: number | null;
+  ACCESS2_CrudePrev: number | null;
+  DIABETES_CrudePrev: number | null;
+  OBESITY_CrudePrev: number | null;
+  MHLTH_CrudePrev: number | null;
+}
+
+/** El JSON viene en formato columnar con textos "interned" para pesar menos. */
+interface ScoredPayload {
+  columns: string[];
+  lookups: Record<string, string[]>;
+  rows: Record<string, (number | null)[]>;
 }
 
 interface GeoData {
@@ -24,8 +51,6 @@ interface StateMapData {
   zcta_state: Record<string, string>;   // { "10001": "NY", ... }
   state_names: Record<string, string>;  // { "NY": "New York", ... }
 }
-
-type ColorMetric = 'ALAND20' | 'AWATER20' | 'UNIFORM';
 
 // ── State Bounding Boxes (lon_min, lat_min, lon_max, lat_max) ─────────
 const STATE_BBOX: Record<string, [number, number, number, number]> = {
@@ -93,26 +118,47 @@ function bboxToViewState(bbox: [number, number, number, number]): Partial<MapVie
   return { longitude: centerLon, latitude: centerLat, zoom: Math.max(4, Math.min(zoom, 10)) };
 }
 
-type ColorMetricKey = 'ALAND20' | 'AWATER20';
+/**
+ * Rampa de riesgo: pizarra fría (seguro) -> rojo coral (riesgo).
+ *
+ * Verificada con simulación de daltonismo antes de adoptarla:
+ *   · luminancia estrictamente creciente  -> se lee ordenada incluso en
+ *     escala de grises o impresa en blanco y negro
+ *   · contraste mínimo 2.15:1 contra el fondo oscuro -> el extremo bajo
+ *     nunca se confunde con "sin datos" ni con el fondo
+ *   · separación mínima entre pasos de 21.5 bajo deuteranopia, protanopia
+ *     y tritanopia -> legible para quien no distingue rojo de verde
+ *
+ * Por eso NO es verde->rojo: ese par colapsa para ~8% de los hombres.
+ * Aquí el extremo frío es azul pizarra, que sí se distingue del rojo.
+ */
+const RAMP: [number, number, number][] = [
+  [ 51,  80,  95],  // #33505f  menor vulnerabilidad — frío, recede
+  [ 93, 102, 104],  // #5d6668
+  [133, 100,  85],  // #856455
+  [167,  95,  69],  // #a75f45
+  [198,  85,  56],  // #c65538
+  [227,  80,  47],  // #e3502f
+  [255, 107,  61],  // #ff6b3d  mayor vulnerabilidad — salta a la vista
+];
 
-function getColor(
-  val: number, max: number, metric: ColorMetric, isState: boolean
-): [number, number, number, number] {
-  if (metric === 'UNIFORM') return isState ? [34, 211, 238, 190] : [99, 179, 237, 175];
-  if (max === 0) return [26, 54, 93, 160];
-  const t = Math.min(Math.max(val / max, 0), 1);
-  if (t < 0.2)  return [26, 54, 93, 160];
-  if (t < 0.4)  return [37, 99, 235, 185];
-  if (t < 0.6)  return [34, 211, 238, 200];
-  if (t < 0.8)  return [52, 211, 153, 210];
-  return [251, 191, 36, 220];
+const GRIS_SIN_DATOS: [number, number, number] = [120, 124, 132];
+
+function getColor(score: number | null): [number, number, number] {
+  if (score === null || Number.isNaN(score)) return GRIS_SIN_DATOS;
+  const t = Math.min(Math.max(score, 0), 100) / 100;
+  return RAMP[Math.min(RAMP.length - 1, Math.floor(t * RAMP.length))];
 }
 
-function fmtArea(m2: number) {
-  const km2 = m2 / 1_000_000;
-  return km2 >= 10_000
-    ? `${(km2 / 1000).toFixed(1)}k km²`
-    : `${km2.toFixed(1)} km²`;
+const CONF_LABEL: Record<number, string> = {
+  2: 'Alta', 1: 'Media', 0: 'Baja', [-1]: 'Sin datos',
+};
+const CONF_ICON: Record<number, string> = {
+  2: '✔', 1: '○', 0: '⚠', [-1]: '—',
+};
+
+function fmtPob(n: number | null) {
+  return n === null ? '—' : n.toLocaleString('es-MX');
 }
 
 // ── Tooltip ────────────────────────────────────────────────────────────
@@ -122,20 +168,44 @@ function Tooltip({ info }: { info: PickingInfo | null }) {
   return (
     <div className="deck-tooltip" style={{ left: info.x, top: info.y }}>
       <div className="tt-zcta">ZCTA {p.ZCTA5CE20}</div>
-      <div className="tt-row"><span>Terrestre</span><span className="tt-val">{fmtArea(p.ALAND20 ?? 0)}</span></div>
-      <div className="tt-row"><span>Agua</span><span className="tt-val">{fmtArea(p.AWATER20 ?? 0)}</span></div>
+      <div className="tt-row">
+        <span>Vulnerabilidad</span>
+        <span className="tt-val">{p.s === null ? 'sin datos' : p.s.toFixed(1)}</span>
+      </div>
+      <div className="tt-row">
+        <span>Confiabilidad</span>
+        <span className="tt-val">{CONF_ICON[p.c]} {CONF_LABEL[p.c]}</span>
+      </div>
     </div>
   );
 }
 
 // ── Inspector ──────────────────────────────────────────────────────────
-function Inspector({ props, onClose }: { props: ZCTAProps; onClose: () => void }) {
+function Inspector({
+  zcta, detail, onClose,
+}: { zcta: string; detail: ZCTADetail | null; onClose: () => void }) {
+  // Las barras del desglose: qué tema empuja el score en ESTA zona.
+  const factores = detail
+    ? ([1, 2, 3, 4] as const)
+        .map((i) => ({
+          nombre: detail[`factor${i}` as keyof ZCTADetail] as string | null,
+          pct: detail[`factor${i}_pct` as keyof ZCTADetail] as number | null,
+        }))
+        .filter((f): f is { nombre: string; pct: number } => !!f.nombre && !!f.pct)
+    : [];
+
+  const conf = detail?.confiabilidad ?? null;
+  const confIcon = conf === 'alta' ? '✔' : conf === 'media' ? '○' : conf === 'baja' ? '⚠' : '—';
+
   return (
     <div className="inspector">
       <div className="inspector-head">
         <div>
-          <div className="field-label" style={{ marginBottom: 4 }}>Polígono seleccionado</div>
-          <div className="zcta-badge">ZCTA {props.ZCTA5CE20}</div>
+          <div className="field-label" style={{ marginBottom: 4 }}>
+            {detail?.county_name ?? 'Zona seleccionada'}
+            {detail?.state_abbr ? `, ${detail.state_abbr}` : ''}
+          </div>
+          <div className="zcta-badge">ZCTA {zcta}</div>
         </div>
         <button className="close-btn" onClick={onClose}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -145,28 +215,74 @@ function Inspector({ props, onClose }: { props: ZCTAProps; onClose: () => void }
           </svg>
         </button>
       </div>
-      <div className="prop-grid">
-        <div className="prop-item">
-          <div className="prop-key">GEOID</div>
-          <div className="prop-val">{props.GEOID20}</div>
+
+      {!detail ? (
+        <div className="prop-grid">
+          <div className="prop-item full">
+            <div className="prop-val">Sin datos para esta zona.</div>
+          </div>
         </div>
-        <div className="prop-item">
-          <div className="prop-key">Tipo</div>
-          <div className="prop-val">{props.LSAD20 === 'Z5' ? 'ZCTA-5' : props.LSAD20}</div>
-        </div>
-        <div className="prop-item">
-          <div className="prop-key">Área Terrestre</div>
-          <div className="prop-val">{fmtArea(props.ALAND20 ?? 0)}</div>
-        </div>
-        <div className="prop-item">
-          <div className="prop-key">Área de Agua</div>
-          <div className="prop-val">{fmtArea(props.AWATER20 ?? 0)}</div>
-        </div>
-        <div className="prop-item full">
-          <div className="prop-key">AFFGEOID</div>
-          <div className="prop-val" style={{ fontSize: '0.75rem' }}>{props.AFFGEOID20}</div>
-        </div>
-      </div>
+      ) : (
+        <>
+          {/* El número grande: el score manda visualmente */}
+          <div className="score-hero">
+            <div className="score-num">{detail.score?.toFixed(0) ?? '—'}</div>
+            <div className="score-cap">VULNERABILIDAD / 100</div>
+            <div className={`conf-chip conf-${conf}`}>
+              {confIcon} Confiabilidad {conf ?? 'sin datos'}
+            </div>
+          </div>
+
+          <div className="prop-grid">
+            <div className="prop-item">
+              <div className="prop-key">Población</div>
+              <div className="prop-val">{fmtPob(detail.poblacion)}</div>
+            </div>
+            <div className="prop-item">
+              <div className="prop-key">Social / Salud</div>
+              <div className="prop-val">
+                {detail.score_social?.toFixed(0) ?? '—'} / {detail.score_salud?.toFixed(0) ?? '—'}
+              </div>
+            </div>
+          </div>
+
+          {/* Esto es lo que hace accionable el dashboard: dos zonas con el
+              mismo score salen con barras distintas -> acciones distintas. */}
+          {factores.length > 0 && (
+            <div className="desglose">
+              <div className="field-label">QUÉ LO CAUSA AQUÍ</div>
+              {factores.map((f) => (
+                <div className="bar-row" key={f.nombre}>
+                  <div className="bar-label">{f.nombre}</div>
+                  <div className="bar-track">
+                    <div className="bar-fill" style={{ width: `${f.pct}%` }} />
+                  </div>
+                  <div className="bar-pct">{f.pct.toFixed(0)}%</div>
+                </div>
+              ))}
+              {detail.factor1_detalle && (
+                <div className="desglose-note">
+                  Sobre todo: <strong>{detail.factor1_detalle}</strong>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="prop-grid">
+            {([
+              ['Pobreza', detail.POV150_value],
+              ['Sin seguro', detail.ACCESS2_CrudePrev],
+              ['Diabetes', detail.DIABETES_CrudePrev],
+              ['Mala salud mental', detail.MHLTH_CrudePrev],
+            ] as const).map(([k, v]) => (
+              <div className="prop-item" key={k}>
+                <div className="prop-key">{k}</div>
+                <div className="prop-val">{v === null ? '—' : `${v.toFixed(1)}%`}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -256,7 +372,10 @@ export default function MapPage() {
   const [loadMsg, setLoadMsg]     = useState('Cargando geometrías ZCTA...');
   const [hoverInfo, setHoverInfo] = useState<PickingInfo | null>(null);
   const [selected, setSelected]   = useState<ZCTAProps | null>(null);
-  const [colorMetric, setColorMetric] = useState<ColorMetric>('ALAND20');
+  const [detalles, setDetalles]   = useState<Record<string, ZCTADetail> | null>(null);
+  // El interruptor que pide la rúbrica: esconde las zonas cuyo margen de error
+  // es tan grande que el número no significa nada.
+  const [soloConfiables, setSoloConfiables] = useState(false);
   const [opacity, setOpacity]     = useState(0.72);
   const [searchVal, setSearchVal] = useState('');
   const [activeState, setActiveState] = useState<string | null>(null);
@@ -266,32 +385,43 @@ export default function MapPage() {
     zoom: 3.5, pitch: 0, bearing: 0,
   });
 
-  const maxVal = useRef({ ALAND20: 1, AWATER20: 1 });
 
   // ── Load both data sources in parallel ──
   useEffect(() => {
     (async () => {
       try {
-        const [geoRes, stateRes] = await Promise.all([
-          fetch('/mapa/zcta_simple.geojson'),
+        const [geoRes, stateRes, scoreRes] = await Promise.all([
+          fetch('/mapa/zcta_data.geojson'),   // geometría + score + confiabilidad
           fetch('/mapa/zcta_state_map.json'),
+          fetch('/datos/zcta_scored.json'),   // el detalle para el panel
         ]);
         if (!geoRes.ok) throw new Error(`GeoJSON HTTP ${geoRes.status}`);
         if (!stateRes.ok) throw new Error(`StateMap HTTP ${stateRes.status}`);
+        if (!scoreRes.ok) throw new Error(`Scores HTTP ${scoreRes.status}`);
 
         setLoadMsg('Procesando 33k polígonos…');
-        const [geo, sm]: [GeoData, StateMapData] = await Promise.all([
+        const [geo, sm, scored]: [GeoData, StateMapData, ScoredPayload] = await Promise.all([
           geoRes.json(),
           stateRes.json(),
+          scoreRes.json(),
         ]);
 
-        let mxLand = 0, mxWater = 0;
-        geo.features.forEach((f) => {
-          if ((f.properties.ALAND20 ?? 0) > mxLand)  mxLand  = f.properties.ALAND20;
-          if ((f.properties.AWATER20 ?? 0) > mxWater) mxWater = f.properties.AWATER20;
-        });
-        maxVal.current = { ALAND20: mxLand || 1, AWATER20: mxWater || 1 };
+        // Desempaqueta el formato columnar: los textos vienen como índices
+        // a una tabla de lookup para que el archivo pese ~3 MB en vez de ~18.
+        const { columns, lookups, rows } = scored;
+        const detalle: Record<string, ZCTADetail> = {};
+        for (const zcta in rows) {
+          const vals = rows[zcta];
+          const rec: Record<string, unknown> = {};
+          columns.forEach((col, i) => {
+            const tabla = lookups[col];
+            const v = vals[i];
+            rec[col] = tabla ? (typeof v === 'number' && v >= 0 ? tabla[v] : null) : v;
+          });
+          detalle[zcta] = rec as unknown as ZCTADetail;
+        }
 
+        setDetalles(detalle);
         setGeoData(geo);
         setStateMap(sm);
         setLoading(false);
@@ -322,36 +452,26 @@ export default function MapPage() {
 
   // ── State stats ──
   const stateStats = useMemo(() => {
-    if (!filteredFeatures) return { count: 0, landKm: 0, waterKm: 0 };
-    let land = 0, water = 0;
+    if (!filteredFeatures) return { count: 0, scorePromedio: 0, confiables: 0 };
+    let suma = 0, n = 0, confiables = 0;
     filteredFeatures.features.forEach((f) => {
-      land  += f.properties.ALAND20  ?? 0;
-      water += f.properties.AWATER20 ?? 0;
+      const { s, c } = f.properties;
+      if (s !== null) { suma += s; n += 1; }
+      if (c === 2) confiables += 1;
     });
     return {
-      count:   filteredFeatures.features.length,
-      landKm:  Math.round(land / 1_000_000),
-      waterKm: Math.round(water / 1_000_000),
+      count: filteredFeatures.features.length,
+      scorePromedio: n ? suma / n : 0,
+      confiables,
     };
   }, [filteredFeatures]);
-
-  // ── Max for state-relative color scale ──
-  const stateMaxVal = useMemo(() => {
-    if (!filteredFeatures || !activeState) return maxVal.current;
-    let mxL = 0, mxW = 0;
-    filteredFeatures.features.forEach((f) => {
-      if ((f.properties.ALAND20 ?? 0) > mxL)  mxL  = f.properties.ALAND20;
-      if ((f.properties.AWATER20 ?? 0) > mxW)  mxW  = f.properties.AWATER20;
-    });
-    return { ALAND20: mxL || 1, AWATER20: mxW || 1 };
-  }, [filteredFeatures, activeState]);
 
   // ── GeoJSON layer ──
   const layers = filteredFeatures
     ? [
         new GeoJsonLayer({
           id: `zcta-${activeState ?? 'national'}`,
-          data: filteredFeatures,
+          data: filteredFeatures as unknown as GeoJSON.FeatureCollection,
           pickable: true,
           stroked: true,
           filled: true,
@@ -359,11 +479,11 @@ export default function MapPage() {
           lineWidthMaxPixels: 1.5,
           getFillColor: (feature: any) => {
             const p = feature.properties as ZCTAProps;
-            const metric: ColorMetricKey = colorMetric === 'AWATER20' ? 'AWATER20' : 'ALAND20';
-            const [r, g, b, a] = getColor(
-              p[metric] ?? 0, stateMaxVal[metric], colorMetric, !!activeState
-            );
-            return [r, g, b, Math.round(a * opacity)];
+            // Con el interruptor prendido, las zonas no confiables se apagan
+            // en vez de desaparecer: así se ve QUE existen pero no se rankean.
+            if (soloConfiables && p.c < 2) return [...GRIS_SIN_DATOS, 40];
+            const [r, g, b] = getColor(p.s);
+            return [r, g, b, Math.round(220 * opacity)];
           },
           getLineColor: [255, 255, 255, 25],
           onHover: setHoverInfo,
@@ -381,7 +501,7 @@ export default function MapPage() {
               }));
             }
           },
-          updateTriggers: { getFillColor: [colorMetric, opacity, activeState, stateMaxVal] },
+          updateTriggers: { getFillColor: [opacity, activeState, soloConfiables] },
         }),
       ]
     : [];
@@ -515,7 +635,7 @@ export default function MapPage() {
                   </div>
                   <div className="mini-stat">
                     <div className="mini-stat-key">Tierra</div>
-                    <div className="mini-stat-val">{stateStats.landKm.toLocaleString()} km²</div>
+                    <div className="mini-stat-val">{stateStats.scorePromedio.toFixed(1)}</div>
                   </div>
                 </div>
               </div>
@@ -542,17 +662,18 @@ export default function MapPage() {
 
             {/* Style controls */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* El interruptor que pide la rúbrica: apaga las zonas cuyo
+                  margen de error es tan grande que el número no dice nada. */}
               <div>
-                <label className="field-label">Colorear por</label>
-                <select
-                  className="color-select"
-                  value={colorMetric}
-                  onChange={(e) => setColorMetric(e.target.value as ColorMetric)}
+                <label className="field-label">Confiabilidad del dato</label>
+                <button
+                  type="button"
+                  className={`conf-toggle${soloConfiables ? ' on' : ''}`}
+                  onClick={() => setSoloConfiables((v) => !v)}
                 >
-                  <option value="ALAND20">Área Terrestre (km²)</option>
-                  <option value="AWATER20">Área de Agua (km²)</option>
-                  <option value="UNIFORM">Color uniforme</option>
-                </select>
+                  <span className="conf-toggle-track"><span className="conf-toggle-knob" /></span>
+                  {soloConfiables ? 'Solo zonas confiables' : 'Todas las zonas'}
+                </button>
               </div>
               <div>
                 <label className="field-label">Opacidad</label>
@@ -565,13 +686,13 @@ export default function MapPage() {
                   <span className="slider-val">{Math.round(opacity * 100)}%</span>
                 </div>
               </div>
-              {colorMetric !== 'UNIFORM' && (
+              {(
                 <div>
-                  <label className="field-label">
-                    Escala {activeState ? `(relativa a ${activeState})` : '(nacional)'}
-                  </label>
+                  <label className="field-label">Índice de vulnerabilidad</label>
                   <div className="legend-bar" />
-                  <div className="legend-ends"><span>Menor</span><span>Mayor</span></div>
+                  <div className="legend-ends">
+                    <span>Menor</span><span>Mayor</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -580,7 +701,11 @@ export default function MapPage() {
 
         {/* Inspector */}
         {selected && (
-          <Inspector props={selected} onClose={() => setSelected(null)} />
+          <Inspector
+            zcta={selected.ZCTA5CE20}
+            detail={detalles?.[selected.ZCTA5CE20] ?? null}
+            onClose={() => setSelected(null)}
+          />
         )}
       </div>
     </div>

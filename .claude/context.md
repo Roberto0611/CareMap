@@ -296,15 +296,28 @@ naranja único, micro-etiquetas monoespaciadas, grid de tarjetas.
 
 | Uso | Valor |
 |---|---|
-| **Mapa (vulnerabilidad)** | Rampa secuencial azul, **un solo tono, claro → oscuro**: `#cde2fb` `#9ec5f4` `#6da7ec` `#3987e5` `#256abf` `#184f95` `#0d366b` |
+| **Mapa (vulnerabilidad)** | Rampa de riesgo, pizarra fría → rojo coral: `#33505f` `#5d6668` `#856455` `#a75f45` `#c65538` `#e3502f` `#ff6b3d` |
 | **Acento / botones / Codi** | Naranja `#eb6834` |
 | Confiabilidad alta | `#0ca30c` |
 | Confiabilidad media | `#fab219` |
 | Confiabilidad baja | `#d03b3b` |
 
-> 🚫 **NUNCA verde→rojo en el mapa.** (a) ~8% de los hombres no distingue ese par —
-> es probable que un juez no pueda leer el mapa; (b) la vulnerabilidad es una magnitud de
-> una sola dirección, no dos polos → escala secuencial de un solo tono.
+La rampa del mapa **fue elegida midiendo, no a ojo.** Se probaron 7 candidatas
+simulando deuteranopia, protanopia y tritanopia. La adoptada cumple las tres:
+
+| Prueba | Resultado |
+|---|---|
+| Luminancia estrictamente creciente | ✅ se lee ordenada en escala de grises / impresa |
+| Contraste mínimo contra el fondo oscuro | ✅ 2.15:1 — el extremo bajo no se confunde con el fondo ni con "sin datos" |
+| Separación mínima entre pasos bajo daltonismo | ✅ 21.5 (mínimo aceptable 18) |
+
+> 🚫 **NUNCA verde→rojo en el mapa.** ~8% de los hombres no distingue ese par;
+> es probable que un juez no pueda leer el mapa. El extremo "seguro" de la rampa
+> adoptada es **azul pizarra**, que sí se distingue del rojo bajo daltonismo.
+
+> 🚫 **Tampoco un azul claro→oscuro**: se probó primero y no comunica riesgo.
+> El script de verificación está en el historial; si se cambia la rampa,
+> hay que volver a correr las tres pruebas antes de adoptarla.
 
 > **Confiabilidad siempre con ícono + texto**, nunca solo color.
 
