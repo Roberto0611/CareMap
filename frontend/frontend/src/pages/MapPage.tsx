@@ -740,10 +740,6 @@ export default function MapPage() {
     [geoData, stateMap, activeState]
   );
 
-  const stateLabel = activeState
-    ? stateMap?.state_names[activeState] ?? activeState
-    : 'Estados Unidos';
-
   return (
     <div className="shell">
       {/* ── State Grid Selector (replaces topbar & tabs) ── */}
