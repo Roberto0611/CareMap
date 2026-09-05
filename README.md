@@ -150,12 +150,20 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 ---
 
+## 📸 Imágenes
+
+<p align="center">
+  <img src="mapa_real.png" alt="Vista del Mapa CareMap" width="800"/>
+</p>
+
+---
+
 ## 👥 Equipo
 
 | Rol | Nombre | Contribución | LinkedIn |
 |-----|--------|--------------|----------|
-| **Full Stack Developer** | Roberto Ochoa Cuevas | Arquitectura, Data Pipelines (Python), Algoritmos Analíticos | [LinkedIn](https://www.linkedin.com/in/roberto-ochoa-cuevas-9082a129b) |
-| **Full Stack Developer** | Aldo Karim Garcia Zapata | Integración con InsForge, Creación del agente de IA, React, Vite, Mapas (Deck.gl), Diseño UI/UX, Vercel Deploy | [LinkedIn](https://www.linkedin.com/in/aldo-karim-2178072b7) |
+| **Full Stack Developer** | Roberto Ochoa Cuevas | Arquitectura, Data Pipelines (Python), Algoritmos Analíticos, Video Pitch (Hyperframe), Diseño UI/UX | [LinkedIn](https://www.linkedin.com/in/roberto-ochoa-cuevas-9082a129b) |
+| **Full Stack Developer** | Aldo Karim Garcia Zapata | Integración con InsForge, Creación del agente de IA, React, Vite, Mapas (Deck.gl), Vercel Deploy | [LinkedIn](https://www.linkedin.com/in/aldo-karim-2178072b7) |
 
 ---
 
