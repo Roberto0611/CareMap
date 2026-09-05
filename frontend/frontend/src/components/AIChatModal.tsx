@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generateSQL } from '../lib/sqlGenerator';
 import { executeSQL, type QueryResult } from '../lib/insforgeClient';
 import bloudIcon from '../bloud.svg';
+import thinkingGif from '../thinking.gif';
+import finishedGif from '../finished.gif';
+import laterGif from '../later.gif';
 
 interface AIChatModalProps {
   isOpen: boolean;
@@ -31,12 +34,29 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
 }) => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agentStatus, setAgentStatus] = useState<'idle' | 'thinking' | 'finished' | 'later'>('idle');
   const [generatedSql, setGeneratedSql] = useState<string | null>(null);
   const [querySource, setQuerySource] = useState<'llm' | 'template' | null>(null);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSql, setShowSql] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // finished.gif dura 2.4s (una sola vez); luego pasa automáticamente a later.gif
+  useEffect(() => {
+    if (agentStatus === 'finished') {
+      const timer = setTimeout(() => {
+        setAgentStatus('later');
+      }, 2400);
+      return () => clearTimeout(timer);
+    }
+  }, [agentStatus]);
+
+  const getAgentIcon = () => {
+    if (agentStatus === 'finished') return finishedGif;
+    if (agentStatus === 'later') return laterGif;
+    return bloudIcon;
+  };
 
   // Si está cerrado, mostrar la píldora flotante estilo Apple en el centro inferior
   if (!isOpen) {
@@ -45,11 +65,11 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
         type="button"
         className="ai-floating-trigger"
         onClick={onOpen || onClose}
-        title="Abrir Asistente Text-to-SQL"
+        title="Abrir Asistente Cloudy"
       >
         <img
           src={bloudIcon}
-          alt="AI"
+          alt="Cloudy"
           style={{
             width: 20,
             height: 20,
@@ -83,6 +103,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
   const handleRunQuery = async (queryText: string) => {
     if (!queryText.trim()) return;
     setLoading(true);
+    setAgentStatus('thinking');
     setError(null);
     setResult(null);
     setIsMinimized(false);
@@ -105,9 +126,12 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
       if (zctaList.length > 0) {
         onHighlightZctas(zctaList);
       }
+
+      setAgentStatus('finished');
     } catch (err: any) {
       console.error('Error en Text-to-SQL:', err);
       setError(err.message || 'Error ejecutando la consulta en InsForge.');
+      setAgentStatus('idle');
     } finally {
       setLoading(false);
     }
@@ -122,80 +146,35 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
 
   return (
     <div className="ai-floating-chat" onClick={(e) => e.stopPropagation()}>
-      {/* Encabezado Apple Minimalista */}
-      <div className="ai-chat-header">
-        <div className="ai-chat-title-wrap">
-          <span className="ai-chat-category">TEXT-TO-SQL</span>
-          <div className="ai-chat-title">
-            <img
-              src={bloudIcon}
-              alt="AI"
+      {/* Resultados expandibles o estado pensando */}
+      {!isMinimized && (hasContent || loading) && (
+        <div className="ai-chat-content">
+          {/* Indicador cuando está pensando */}
+          {loading && (
+            <div
               style={{
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                objectFit: 'contain',
-                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: 'rgba(255, 255, 255, 0.9)',
               }}
-            />
-            <span>Consulta Inteligente</span>
-            <span className="ai-chat-badge">OpenRouter • Llama 3.3</span>
-          </div>
-          {highlightedCount > 0 && (
-            <div className="ai-status-pill">
-              <span>📍 {highlightedCount} zonas resaltadas</span>
-              {onClearHighlight && (
-                <button
-                  type="button"
-                  className="ai-status-clear"
-                  onClick={onClearHighlight}
-                  title="Limpiar resaltado en el mapa"
-                >
-                  ✕
-                </button>
-              )}
+            >
+              <img
+                src={thinkingGif}
+                alt="Pensando"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  objectFit: 'contain',
+                }}
+              />
             </div>
           )}
-        </div>
-
-        <div className="ai-chat-actions">
-          {hasContent && (
-            <button
-              type="button"
-              className="ai-icon-btn"
-              onClick={() => setIsMinimized((v) => !v)}
-              title={isMinimized ? 'Expandir resultados' : 'Minimizar resultados'}
-            >
-              <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>
-                {isMinimized ? '▲' : '▼'}
-              </span>
-            </button>
-          )}
-          <button
-            type="button"
-            className="ai-icon-btn"
-            onClick={onClose}
-            title="Cerrar"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Resultados expandibles */}
-      {!isMinimized && hasContent && (
-        <div className="ai-chat-content">
           {/* Mensaje de Error */}
           {error && (
             <div
@@ -209,47 +188,6 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
               }}
             >
               <strong style={{ color: '#ffffff' }}>Nota:</strong> {error}
-            </div>
-          )}
-
-          {/* Consulta SQL generada */}
-          {generatedSql && (
-            <div className="ai-prop-item">
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '0.62rem',
-                    fontWeight: 600,
-                    color: 'rgba(255, 255, 255, 0.45)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.07em',
-                  }}
-                >
-                  SQL GENERADO ({querySource === 'llm' ? 'LLM' : 'PLANTILLA'})
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setShowSql((v) => !v)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#ffffff',
-                    fontSize: '0.7rem',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    opacity: 0.8,
-                  }}
-                >
-                  {showSql ? 'Ocultar ▲' : 'Ver código ▼'}
-                </button>
-              </div>
-              {showSql && <code className="ai-sql-code">{generatedSql}</code>}
             </div>
           )}
 
@@ -288,7 +226,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
                       onHighlightZctas(zctas);
                     }}
                   >
-                    🗺 Ver en el Mapa
+                   Ver en el Mapa
                   </button>
                 )}
               </div>
@@ -366,7 +304,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
           <input
             type="text"
             className="ai-chat-input"
-            placeholder="Pregunta a la IA sobre códigos postales (ej. menor vulnerabilidad en Texas)..."
+            placeholder="Pregunta a Cloudy sobre códigos postales (ej. menor vulnerabilidad en Texas)..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
@@ -374,16 +312,31 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
             {loading ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <img
-                  src={bloudIcon}
-                  alt="AI"
-                  style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'contain' }}
+                  src={thinkingGif}
+                  alt="Pensando"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    objectFit: 'contain',
+                  }}
                 />
-                <span>Consultando…</span>
+                <span>Pensando…</span>
               </span>
             ) : (
               <>
                 <span>Consultar</span>
-                <span style={{ fontSize: '1rem', lineHeight: 1 }}>↑</span>
+                <img
+                  src={getAgentIcon()}
+                  alt="Agente"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    objectFit: 'contain',
+                    flexShrink: 0,
+                  }}
+                />
               </>
             )}
           </button>
