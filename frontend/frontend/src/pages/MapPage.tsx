@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { desempaquetar, type ZCTADetail } from '../lib/datos';
+import { desempaquetar, colorVulnerabilidad, type ZCTADetail } from '../lib/datos';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { FlyToInterpolator } from '@deck.gl/core';
@@ -282,7 +282,10 @@ function Inspector({
                 <div className={`bar-row${f.dominante ? ' dominante' : ''}`} key={f.nombre}>
                   <div className="bar-label">{f.nombre}</div>
                   <div className="bar-track">
-                    <div className="bar-fill" style={{ width: `${f.pct}%` }} />
+                    <div
+                      className="bar-fill"
+                      style={{ width: `${f.pct}%`, background: colorVulnerabilidad(f.pct) }}
+                    />
                   </div>
                   <div className="bar-pct">{f.pct.toFixed(0)}</div>
                 </div>
