@@ -583,61 +583,95 @@ export default function MapPage() {
     };
   }, [filteredFeatures]);
 
-  // ── GeoJSON layer ──
-  const layers = filteredFeatures
-    ? [
-        new GeoJsonLayer({
-          id: `zcta-${activeState ?? 'national'}`,
-          data: filteredFeatures as unknown as GeoJSON.FeatureCollection,
-          pickable: true,
-          stroked: true,
-          filled: true,
-          lineWidthMinPixels: 0.4,
-          lineWidthMaxPixels: 6,
-          getFillColor: (feature: any) => {
-            const p = feature.properties as ZCTAProps;
-            // Con el interruptor prendido, las zonas no confiables se apagan
-            // en vez de desaparecer: así se ve QUE existen pero no se rankean.
-            if (soloConfiables && p.c < 2) return [...GRIS_SIN_DATOS, 40];
-            const [r, g, b] = modo === 'residual'
-              ? getColorResidual(p.r)
-              : getColor(p.s);
-            return [r, g, b, Math.round(220 * opacity)];
-          },
-          getLineColor: (feature: any) => {
-            const p = feature.properties as ZCTAProps;
-            if (highlightedZctas.has(p.ZCTA5CE20)) {
-              return [255, 220, 0, 255]; // Oro brillante para resaltar resultados IA
-            }
-            return [255, 255, 255, 25];
-          },
-          getLineWidth: (feature: any) => {
-            const p = feature.properties as ZCTAProps;
-            return highlightedZctas.has(p.ZCTA5CE20) ? 3.5 : 0.4;
-          },
-          onHover: setHoverInfo,
-          onClick: (info: PickingInfo) => {
-            if (!info.object) { setSelected(null); return; }
-            setSelected(info.object.properties as ZCTAProps);
-            if (info.coordinate) {
-              setViewState((v) => ({
-                ...v,
-                longitude: info.coordinate![0],
-                latitude:  info.coordinate![1],
-                zoom: Math.max(v.zoom, 9),
-                transitionDuration: 700,
-                transitionInterpolator: new FlyToInterpolator({ speed: 1.8 }),
-              }));
-            }
-          },
-          updateTriggers: {
-            getFillColor: [opacity, activeState, soloConfiables, modo],
-            getLineColor: [highlightedZctas],
-            getLineWidth: [highlightedZctas],
-          },
-        }),
-      ]
-    : [];
+  // ── Selected Feature memo for overlay border ──
+  const selectedFeature = useMemo(() => {
+    if (!selected || !geoData) return null;
+    return geoData.features.find(
+      (f) => f.properties.ZCTA5CE20 === selected.ZCTA5CE20
+    ) ?? null;
+  }, [selected?.ZCTA5CE20, geoData]);
+
+  // ── GeoJSON layers ──
+  const layers = [
+    ...(filteredFeatures
+      ? [
+          new GeoJsonLayer({
+            id: `zcta-${activeState ?? 'national'}`,
+            data: filteredFeatures as unknown as GeoJSON.FeatureCollection,
+            pickable: true,
+            stroked: true,
+            filled: true,
+            lineWidthMinPixels: 0.4,
+            lineWidthMaxPixels: 6,
+            getFillColor: (feature: any) => {
+              const p = feature.properties as ZCTAProps;
+              // Con el interruptor prendido, las zonas no confiables se apagan
+              // en vez de desaparecer: así se ve QUE existen pero no se rankean.
+              if (soloConfiables && p.c < 2) return [...GRIS_SIN_DATOS, 40];
+              const [r, g, b] = modo === 'residual'
+                ? getColorResidual(p.r)
+                : getColor(p.s);
+              return [r, g, b, Math.round(220 * opacity)];
+            },
+            getLineColor: (feature: any) => {
+              const p = feature.properties as ZCTAProps;
+              if (selected?.ZCTA5CE20 === p.ZCTA5CE20) {
+                return [255, 255, 255, 255]; // Blanco puro brillante para el seleccionado
+              }
+              if (highlightedZctas.has(p.ZCTA5CE20)) {
+                return [255, 220, 0, 255]; // Oro brillante para resaltar resultados IA
+              }
+              return [255, 255, 255, 25];
+            },
+            getLineWidth: (feature: any) => {
+              const p = feature.properties as ZCTAProps;
+              if (selected?.ZCTA5CE20 === p.ZCTA5CE20) {
+                return 4;
+              }
+              return highlightedZctas.has(p.ZCTA5CE20) ? 3.5 : 0.4;
+            },
+            onHover: setHoverInfo,
+            onClick: (info: PickingInfo) => {
+              if (!info.object) { setSelected(null); return; }
+              setSelected(info.object.properties as ZCTAProps);
+              if (info.coordinate) {
+                setViewState((v) => ({
+                  ...v,
+                  longitude: info.coordinate![0],
+                  latitude:  info.coordinate![1],
+                  zoom: Math.max(v.zoom, 9),
+                  transitionDuration: 700,
+                  transitionInterpolator: new FlyToInterpolator({ speed: 1.8 }),
+                }));
+              }
+            },
+            updateTriggers: {
+              getFillColor: [opacity, activeState, soloConfiables, modo],
+              getLineColor: [highlightedZctas, selected?.ZCTA5CE20],
+              getLineWidth: [highlightedZctas, selected?.ZCTA5CE20],
+            },
+          }),
+        ]
+      : []),
+    // Capa superpuesta en la parte superior para que ningún polígono adyacente tape el borde seleccionado
+    ...(selectedFeature
+      ? [
+          new GeoJsonLayer({
+            id: `zcta-selected-border-${selectedFeature.properties.ZCTA5CE20}`,
+            data: [selectedFeature] as any,
+            pickable: false,
+            stroked: true,
+            filled: true,
+            getFillColor: [255, 255, 255, 28], // sutil iluminación interior blanca
+            getLineColor: [255, 255, 255, 255], // borde blanco nítido estilo Apple
+            getLineWidth: 4,
+            lineWidthUnits: 'pixels',
+            lineWidthMinPixels: 3,
+            lineWidthMaxPixels: 8,
+          }),
+        ]
+      : []),
+  ];
 
   // ── Handle tab change ──
   const handleStateSelect = useCallback(
@@ -777,6 +811,19 @@ export default function MapPage() {
         {/* Left panel desplegable */}
         {!loading && showLeftPanel && (
           <div className="left-panel">
+            {/* Header del panel con botón de cierre */}
+            <div className="left-panel-head">
+              <span className="left-panel-title">Información del Mapa</span>
+              <button
+                type="button"
+                className="left-panel-close"
+                onClick={() => setShowLeftPanel(false)}
+                title="Cerrar panel"
+              >
+                ✕
+              </button>
+            </div>
+
             {/* State info card (only when state active) */}
             {activeState && stateMap && (
               <div className="glass-card">
@@ -831,10 +878,12 @@ export default function MapPage() {
               </div>
 
               <Link className="gem-link" to="/gemelos">
-                Ver gemelos geográficos →
+                <span>Ver gemelos geográficos</span>
+                <span>→</span>
               </Link>
               <Link className="gem-link" to="/asignador">
-                Asignar recursos →
+                <span>Asignar recursos</span>
+                <span>→</span>
               </Link>
 
               {/* Atenúa las zonas cuya estimación no es confiable, para que
@@ -847,7 +896,7 @@ export default function MapPage() {
                   onClick={() => setSoloConfiables((v) => !v)}
                 >
                   <span className="conf-toggle-track"><span className="conf-toggle-knob" /></span>
-                  {soloConfiables ? 'Solo zonas confiables' : 'Todas las zonas'}
+                  <span>{soloConfiables ? 'Solo zonas confiables' : 'Todas las zonas'}</span>
                 </button>
               </div>
               <div>
