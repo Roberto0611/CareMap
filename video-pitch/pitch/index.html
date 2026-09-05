@@ -27,7 +27,7 @@
     </style>
   </head>
   <body>
-    <div data-hf-id="hf-qbnw" id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-x6kv" id="root" data-composition-id="main" data-start="0" data-duration="85" data-width="1920" data-height="1080">
       <!-- Escena 1 — El gancho (0:00–0:20). Ver STORYBOARD.md § Frame 01. -->
       <div data-hf-id="hf-tlbz" id="el-01-gancho" data-composition-id="gancho" data-composition-src="compositions/frames/01-gancho.html" data-start="0" data-duration="20" data-track-index="1" data-width="1920" data-height="1080"></div>
 
@@ -38,10 +38,18 @@
       <div data-hf-id="hf-hggb" id="el-03-titulo" data-composition-id="titulo" data-composition-src="compositions/frames/03-titulo.html" data-start="45" data-duration="15" data-track-index="1" data-width="1920" data-height="1080"></div>
 
       <!--
-        Próximas escenas, en orden (ver STORYBOARD.md):
-        04..06 — metraje real, pendientes de grabación
-        07-cierre.html      data-start="…"  data-duration="25"
+        ⚠️ HUECO TEMPORAL: escenas 04–06 son metraje real (demo grabada),
+        aún sin grabar. Van aquí, entre la 3 y la 7. Cuando existan:
+          1. Insertar sus <div data-composition-src="..."> con
+             data-start = 60, 60+dur(04), 60+dur(04)+dur(05)...
+          2. Correr el data-start de la escena 7 (abajo) para que empiece
+             justo donde termine la 06 — hoy está pegada a la 3 nada más
+             para poder previsualizar el cierre.
+          3. Sumar data-duration del root a lo que resulte.
       -->
+
+      <!-- Escena 7 — Cierre. Pegada temporalmente a la 3 (ver hueco arriba). -->
+      <div data-hf-id="hf-a46s" id="el-07-cierre" data-composition-id="cierre" data-composition-src="compositions/frames/07-cierre.html" data-start="60" data-duration="25" data-track-index="1" data-width="1920" data-height="1080"></div>
     </div>
 
     <script>
