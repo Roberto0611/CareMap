@@ -1,4 +1,4 @@
-# 🗺️ CareMap (DataRush)
+# CareMap (DataRush 2026)
 
 <p align="center">
   <img src="frontend/frontend/public/logochrome.svg" alt="CareMap Logo" width="150"/>
@@ -17,6 +17,10 @@
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
   <img src="https://img.shields.io/badge/AI-OpenRouter-4285F4?style=for-the-badge&logo=openai&logoColor=white" alt="OpenRouter AI"/>
+</p>
+
+<p align="center">
+  <img src="readmephotos/Landing1Herosection.png" alt="CareMap Landing Page" width="800"/>
 </p>
 
 ---
@@ -123,10 +127,23 @@ Usuario → Frontend (React + Vite) ↔ Vercel Edge Network
 
 ## ✨ Características Principales
 
-### 1. 🤖 Agente Cloudy (Asistente de IA)
+### Cloudy 
+<p align="center">
+  <img src="readmephotos/Landing2Cloudy.png" alt="Agente Cloudy" width="800"/>
+</p>
+
 **Cloudy** no es un chatbot tradicional; es un agente RAG geoespacial capaz de transformar preguntas como: *"Mayor prevalencia de diabetes en California"* en sentencias de PostgreSQL seguras, ejecutarlas en **InsForge**, y resaltar visualmente los ZCTAs resultantes en el mapa. 
 
-### 2. 🗺️ Mapa Analítico ZCTA
+### Mapa Analítico ZCTA (Vista Nacional y Estatal)
+<p align="center">
+  <img src="readmephotos/mapa1-vistanacional.png" alt="Vista Nacional" width="800"/>
+  <br><i>Vista nacional mostrando el índice de vulnerabilidad a lo largo del país.</i>
+</p>
+<p align="center">
+  <img src="readmephotos/mapa2-vistaestatal.png" alt="Vista Estatal" width="800"/>
+  <br><i>Vista estatal detallada, donde puedes explorar y visualizar el código postal específico de cada zona en el estado seleccionado.</i>
+</p>
+
 Renderizado de alta eficiencia de todo el país a nivel ZCTA.
 - Desglose por factores causales (Socioeconómico, Vivienda, Carga de Enfermedad, etc.).
 - Filtrado por estados y cálculo de penalización estadística para ZCTAs ruidosos o de baja población.
@@ -136,6 +153,10 @@ Renderizado de alta eficiencia de todo el país a nivel ZCTA.
 Si elige solo las zonas más "graves", podría terminar sirviendo a códigos postales de 100 habitantes. El **Algoritmo de Asignación** permite al usuario nivelar un *slider* entre **Gravedad vs. Alcance Poblacional**, y separa geográficamente las unidades sugeridas para evitar redundancia espacial.
 
 ### 4. 👯‍♂️ Gemelos Estadísticos
+<p align="center">
+  <img src="readmephotos/comparativagemelos.png" alt="Comparativa de Gemelos" width="800"/>
+</p>
+
 Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualquier otra parte del país (usando distancia euclidiana en el hiperespacio de los factores sociodemográficos). Útil para extrapolar intervenciones de salud exitosas de una zona a otra zona idéntica pero en distinto estado.
 
 ---
@@ -154,8 +175,8 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 | Rol | Nombre | Contribución | LinkedIn |
 |-----|--------|--------------|----------|
-| **Full Stack Developer** | Roberto Ochoa Cuevas | Arquitectura, Data Pipelines (Python), Algoritmos Analíticos | [LinkedIn](https://www.linkedin.com/in/roberto-ochoa-cuevas-9082a129b) |
-| **Full Stack Developer** | Aldo Karim Garcia Zapata | Integración con InsForge, Creación del agente de IA, React, Vite, Mapas (Deck.gl), Diseño UI/UX, Vercel Deploy | [LinkedIn](https://www.linkedin.com/in/aldo-karim-2178072b7) |
+| **Full Stack Developer** | Roberto Ochoa Cuevas | Arquitectura, Data Pipelines (Python), Algoritmos Analíticos, Video Pitch (Hyperframe), Diseño UI/UX | [LinkedIn](https://www.linkedin.com/in/roberto-ochoa-cuevas-9082a129b) |
+| **Full Stack Developer** | Aldo Karim Garcia Zapata | Integración con InsForge, Creación del agente de IA, React, Vite, Mapas (Deck.gl), Vercel Deploy | [LinkedIn](https://www.linkedin.com/in/aldo-karim-2178072b7) |
 
 ---
 
