@@ -117,7 +117,7 @@ Usuario → Frontend (React + Vite) ↔ Vercel Edge Network
 ### Backend & AI Stack
 - **InsForge:** Backend unificado con PostgreSQL.
 - **Python (ETL):** Scripts locales de unificación (`etl_zcta_unify.py`) que procesan ACS y CDC PLACES antes de subirlos a la DB.
-- **OpenRouter API:** Interfaz con modelos fundacionales avanzados (ej. GPT-4o / Claude 3) para la inteligencia de Cloudy.
+- **OpenRouter API:** Interfaz con Llama de Meta para la inteligencia de Cloudy.
 
 ---
 
@@ -152,14 +152,10 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 ## 👥 Equipo
 
-### Equipo
 | Rol | Nombre | Contribución | LinkedIn |
 |-----|--------|--------------|----------|
-| **Tech Lead / Backend** | Roberto Ochoa Cuevas | Arquitectura, InsForge Integrations, Data Pipelines (Python), Algoritmos Analíticos | [LinkedIn](https://www.linkedin.com/in/roberto-ochoa-cuevas-9082a129b) |
-| **Frontend Developer** | Aldo Karim Garcia Zapata | React, Vite, Mapas (Deck.gl), Diseño UI/UX, Vercel Deploy, Interfaz de IA (Cloudy) | [LinkedIn](https://www.linkedin.com/in/aldo-karim-2178072b7) |
-
-### Agradecimientos
-- **Data Science Club at Tec** por organizar el Data Rush 2025.
+| **Full Stack Developer** | Roberto Ochoa Cuevas | Arquitectura, Data Pipelines (Python), Algoritmos Analíticos | [LinkedIn](https://www.linkedin.com/in/roberto-ochoa-cuevas-9082a129b) |
+| **Full Stack Developer** | Aldo Karim Garcia Zapata | Integración con InsForge, Creación del agente de IA, React, Vite, Mapas (Deck.gl), Diseño UI/UX, Vercel Deploy | [LinkedIn](https://www.linkedin.com/in/aldo-karim-2178072b7) |
 
 ---
 
