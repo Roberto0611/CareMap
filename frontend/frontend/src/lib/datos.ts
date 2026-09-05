@@ -98,10 +98,12 @@ export async function cargarDatos(url = '/datos/zcta_scored.json'): Promise<Dato
 }
 
 /**
- * Un par es DEFENDIBLE cuando las dos zonas tienen una estructura de edad
- * parecida. Si una casi no tiene población mayor, suele ser una base militar
- * o un campus: se ve sana solo porque es gente joven, y en el pitch un juez
- * lo tumba en preguntas.
+ * Una comparación está bien controlada cuando las dos zonas tienen una
+ * estructura de edad parecida. Si una casi no tiene población mayor, suele
+ * tratarse de una base militar o un campus universitario: aparece sana porque
+ * su población es joven, no porque su contexto social sea mejor. Varias
+ * condiciones crónicas aumentan con la edad, así que sin ese control el
+ * contraste no es atribuible al contexto social.
  */
 export function brechaEdad(g: GemeloDestacado): number {
   return Math.abs(g.mayores65_a - g.mayores65_b);

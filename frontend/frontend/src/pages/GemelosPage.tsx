@@ -6,14 +6,16 @@ import {
 } from '../lib/datos';
 
 /**
- * Comparador de gemelos geográficos.
+ * Comparador de códigos postales contiguos.
  *
- * El argumento: decir "Mississippi está peor que Massachusetts" no impresiona
- * — son estados distintos, la excusa está ahí. Decir "estos dos códigos
- * postales están a 2.8 km y uno tiene 2.7 veces más diabetes" no tiene excusa.
+ * Comparar zonas lejanas admite demasiadas explicaciones alternativas (clima,
+ * economía, política sanitaria). Comparar vecinos las elimina casi todas: dos
+ * ZCTAs a pocos kilómetros comparten ciudad, condado, mercado laboral e
+ * infraestructura médica, así que el contraste que quede es atribuible al
+ * contexto social.
  *
- * Las cinco barras van en el mismo orden en ambas columnas justamente para
- * que la diferencia se lea como una silueta, no como una tabla.
+ * Las cinco barras van en el mismo orden en ambas columnas para que la
+ * diferencia se lea como una silueta y no como una tabla.
  */
 
 function fmt(n: number | null | undefined, suf = '%') {
@@ -77,10 +79,11 @@ export default function GemelosPage() {
     cargarDatos().then(setDatos).catch((e) => setError(e.message));
   }, []);
 
-  // Un buen par para el pitch necesita DOS cosas: mucho contraste en salud y
-  // poca diferencia de edad (si no, "es que una zona es más vieja" tumba el
-  // argumento). Se penaliza cada punto de diferencia de edad para que el par
-  // más defendible quede primero, no el más espectacular.
+  // Una comparación es informativa cuando hay mucho contraste en salud Y poca
+  // diferencia de edad entre las dos zonas: si difieren en edad, el contraste
+  // podría explicarse por demografía en vez de por contexto social. Se penaliza
+  // cada punto de diferencia de edad para que los pares mejor controlados
+  // aparezcan primero, no los de contraste más llamativo.
   const pares = useMemo(() => {
     if (!datos) return [];
     const calidad = (g: GemeloDestacado) =>
@@ -112,7 +115,7 @@ export default function GemelosPage() {
           >
             {pares.map((p, k) => (
               <option key={`${p.a}-${p.b}`} value={k}>
-                {p.ciudad} · {p.km} km {esDefendible(p) ? '' : '⚠'}
+                {p.ciudad} · {p.km} km {esDefendible(p) ? '' : '· edad dispar'}
               </option>
             ))}
           </select>
@@ -120,7 +123,16 @@ export default function GemelosPage() {
         </div>
       </header>
 
-      {/* El titular: tres números y ya se entiende el problema */}
+      <p className="gem-metodo">
+        Pares de códigos postales contiguos (menos de 15 km) con la mayor
+        diferencia en el índice de vulnerabilidad. Al ser vecinos comparten
+        clima, mercado laboral, gobierno local e infraestructura sanitaria, lo
+        que aísla el peso del contexto social. Los pares marcados como
+        <em> edad dispar</em> difieren en estructura demográfica y se
+        interpretan con cautela.
+      </p>
+
+      {/* Tres cifras resumen la comparación antes de entrar al detalle */}
       <div className="gem-titulares">
         <div className="gem-tit">
           <div className="gem-tit-num">{g.km}<small> km</small></div>
@@ -144,12 +156,16 @@ export default function GemelosPage() {
       </div>
 
       {edad > 5 && (
-        // Si las edades no coinciden, el par no aguanta preguntas. Mejor
-        // decirlo aquí que enterarse frente a los jueces.
+        // Advertencia metodológica: varias condiciones crónicas aumentan con
+        // la edad, así que un par con estructuras demográficas distintas no
+        // aísla el efecto del contexto social.
         <p className="gem-aviso">
-          Ojo: estas dos zonas tienen estructuras de edad distintas, así que
-          parte de la diferencia en salud puede ser por edad y no por contexto
-          social. Para el pitch conviene un par sin ⚠.
+          Estas dos zonas tienen estructuras de edad distintas
+          ({g.mayores65_a.toFixed(0)}% y {g.mayores65_b.toFixed(0)}% de población
+          mayor de 65). Como la prevalencia de varias condiciones crónicas
+          aumenta con la edad, parte de la diferencia observada puede deberse a
+          la composición demográfica y no al contexto social. La comparación es
+          menos directa que en los pares marcados como comparables.
         </p>
       )}
 

@@ -585,7 +585,7 @@ html, body {
 }
 .gem-link:hover { text-decoration: underline; }
 
-/* Los tres números del titular hacen el trabajo del pitch */
+/* Los tres números del titular resumen la comparación */
 .gem-titulares {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -734,4 +734,91 @@ html, body {
 .gem-nav .color-select option {
   background: var(--bg-surface);
   color: var(--text-main);
+}
+
+.gem-metodo {
+  max-width: 78ch;
+  margin: 0 0 24px;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.gem-metodo em { color: var(--conf-media); font-style: normal; }
+
+/* Selector de qué mide el color del mapa */
+.modo-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-surface);
+}
+.modo-switch button {
+  padding: 7px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.modo-switch button:hover { color: var(--text-main); }
+.modo-switch button.on {
+  background: var(--acento);
+  color: #fff;
+  font-weight: 600;
+}
+.modo-nota {
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+/* Leyenda divergente: dos polos y un neutro en medio */
+.legend-bar.div {
+  background: linear-gradient(
+    to right,
+    #3987e5, #6a9ed6, #8fa3b8, #60656f, #b06a4e, #e05a34, #ff6b3d
+  );
+}
+.legend-ends { display: flex; justify-content: space-between; }
+
+/* Comparación observado vs. esperado en el panel */
+.resid-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.resid-fila strong {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
+.resid-chip {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 5px 12px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+.resid-chip.peor  { color: var(--acento); }
+.resid-chip.mejor { color: #6a9ed6; }
+.resid-chip.igual { color: var(--text-dim); }
+.resid-nota {
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-muted);
 }
