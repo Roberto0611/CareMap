@@ -171,14 +171,6 @@ Al seleccionar un ZCTA, el sistema encuentra su "gemelo estadístico" en cualqui
 
 ---
 
-## 📸 Imágenes
-
-<p align="center">
-  <img src="mapa_real.png" alt="Vista del Mapa CareMap" width="800"/>
-</p>
-
----
-
 ## 👥 Equipo
 
 | Rol | Nombre | Contribución | LinkedIn |
