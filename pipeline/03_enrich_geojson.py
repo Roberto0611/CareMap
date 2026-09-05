@@ -23,6 +23,9 @@ mostrar texto que el 99.99% del tiempo no se ve. Por eso aquí solo van:
     ZCTA5CE20  el código (llave para buscar el resto)
     s          score 0-100, un decimal
     c          confiabilidad: 2=alta, 1=media, 0=baja, -1=sin datos
+    r          residual: cuánto se desvía la salud real de la que predice
+               el contexto social (+ = peor de lo esperado). null si la zona
+               es muy chica para modelarla.
 
 De paso se tiran los campos del shapefile que ya nadie usa y se recorta la
 precisión de las coordenadas a 3 decimales (~110 m, de sobra a escala nacional).
@@ -68,7 +71,11 @@ def main() -> int:
 
     df = pd.read_parquet(SCORED)
     data = {
-        r.zcta: (round(float(r.score), 1), CONF_CODE.get(r.confiabilidad, -1))
+        r.zcta: (
+            round(float(r.score), 1),
+            CONF_CODE.get(r.confiabilidad, -1),
+            None if pd.isna(r.residual) else round(float(r.residual), 1),
+        )
         for r in df.itertuples(index=False)
         if pd.notna(r.score)
     }
@@ -95,10 +102,10 @@ def main() -> int:
         rec = data.get(zcta)
         props = {"ZCTA5CE20": zcta}
         if rec:
-            props["s"], props["c"] = rec
+            props["s"], props["c"], props["r"] = rec
             matched += 1
         else:
-            props["s"], props["c"] = None, -1
+            props["s"], props["c"], props["r"] = None, -1, None
         f["properties"] = props
         f["geometry"]["coordinates"] = trim(f["geometry"]["coordinates"])
 

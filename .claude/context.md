@@ -102,8 +102,23 @@ Estos son los activos del pitch. Todos reproducibles.
 - **R² = 0.780**  ← cifra vigente, reproducible con `pipeline/05_residual.py`
 - Verificado que **NO está confundido por edad**: % de 65+ es 18.9 en las zonas
   "mejor de lo esperado" vs 19.4 en las "peor de lo esperado" (nacional 19.8)
-- El 24% no explicado es el oro: zonas peor de lo esperado = algo puntual arreglable;
+- El 22% no explicado es el oro: zonas peor de lo esperado = algo puntual arreglable;
   zonas mejor de lo esperado = *positive deviance*, hay algo que aprender
+
+**El hallazgo que da el modo "peor de lo esperado":** hay **141 zonas confiables
+(2.7 millones de habitantes)** con score bajo — no llaman la atención en el mapa
+normal — pero **15+ puntos peor** de lo que su contexto social predice.
+
+| ZCTA | Condado | Score | Residual |
+|---|---|---|---|
+| 92518 | Riverside, CA | 58 | **+32** |
+| 12789 | Sullivan, NY | 60 | **+30** |
+| 46319 | Lake, IN | 49 | **+29** |
+
+Contraste útil: **90011 (Los Ángeles)** tiene score 76.6 —de lo peor del país—
+pero residual −0.8: está exactamente como su contexto predice. Es pobre y está
+enferma, sin sorpresa. **92518 no se ve mal y sí lo está.** Esa es la diferencia
+entre "dónde está peor" y "dónde el dinero rinde más".
 
 ### 3.5 Los gemelos geográficos
 
@@ -179,7 +194,7 @@ datarush-3/
 │   ├── src/lib/datos.ts                  <- carga/desempaqueta el JSON columnar
 │   └── src/pages/
 │       ├── LandingPage.tsx    /          (texto pendiente — lo ve el compañero)
-│       ├── MapPage.tsx        /map
+│       ├── MapPage.tsx        /map       ✅ dos modos: vulnerabilidad · residual
 │       └── GemelosPage.tsx    /gemelos   ✅
 └── api/                       FastAPI. ~30 líneas. (pendiente)
 ```
@@ -399,6 +414,14 @@ simulando deuteranopia, protanopia y tritanopia. La adoptada cumple las tres:
 
 > **Confiabilidad siempre con ícono + texto**, nunca solo color.
 
+> **Rampa DIVERGENTE, solo para el modo "peor de lo esperado":**
+> `#3987e5` `#6a9ed6` `#8fa3b8` `#60656f` `#b06a4e` `#e05a34` `#ff6b3d`
+> Ahí sí hay dos polos y un cero con significado, que es cuando una escala
+> divergente es correcta. Verificada igual que la otra: extremos separados 194
+> bajo daltonismo, paso mínimo 35, contraste mínimo 3.14 contra el fondo.
+> El extremo cálido es el mismo coral de la rampa secuencial, para que en ambos
+> modos "naranja = mírame".
+
 > **Arquetipos: NUNCA 6 colores en el mapa.** Verificado con validador de paletas: en un
 > mapa de puntos, más de 3 colores categóricos deja de ser distinguible para daltónicos.
 > **Uno a la vez**: el arquetipo filtrado se prende en naranja, el resto se apaga a gris.
@@ -467,7 +490,6 @@ Surprised (hallazgo) · Proud (terminó) · Neutral (sin resultados). ~6 PNG/SVG
 - Verificados: los 6 hallazgos de la sección 3
 
 ### Pendiente
-- Pantalla de **residuales** (peor de lo esperado) — el dato ya está en `residual`
 - Pantalla del **asignador** ("tengo 12 clínicas") — el cierre del pitch
 - Filtro por **arquetipo** en el mapa (uno a la vez, naranja vs gris)
 - Fase 4: copiloto + Codi
@@ -480,7 +502,7 @@ Surprised (hallazgo) · Proud (terminó) · Neutral (sin resultados). ~6 PNG/SVG
 ```
 FASE 1  Motor              ██████████  ✅ 8 estaciones
 FASE 2  Mapa + panel       ██████████  ✅
-FASE 3  Las 3 historias    ███░░░░░░░  gemelos ✅ · residuales ⬜ · asignador ⬜
+FASE 3  Las 3 historias    ███████░░░  gemelos ✅ · residuales ✅ · asignador ⬜
 FASE 4  Copiloto + Codi    ░░░░░░░░░░
         README + deploy    ░░░░░░░░░░
         Video              ░░░░░░░░░░  ← 35%, sin empezar
