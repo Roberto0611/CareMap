@@ -159,7 +159,6 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
   onOpen,
   onHighlightZctas,
   highlightedCount = 0,
-  onClearHighlight,
   onSearchZcta,
 }) => {
   const [prompt, setPrompt] = useState('');
@@ -176,11 +175,9 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
     }
   }, [isZctaExpanded]);
 
-  const [querySource, setQuerySource] = useState<'llm' | 'template' | 'assign' | null>(null);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [assignResult, setAssignResult] = useState<AsignarIntentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showSql, setShowSql] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
   // finished.gif dura 2.4s (una sola vez); luego pasa automáticamente a later.gif
@@ -254,7 +251,6 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
     try {
       // ── 1. Detectar intención de ASIGNACIÓN ──────────────────────────────
       if (isAssignIntent(queryText)) {
-        setQuerySource('assign');
         const intentResult = await runAssignIntent(queryText);
 
         if (intentResult.detected) {
@@ -269,9 +265,8 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
       }
 
       // ── 2. Flujo normal: Text-to-SQL ─────────────────────────────────────
-      const { sql, source } = await generateSQL(queryText);
+      const { sql } = await generateSQL(queryText);
       setGeneratedSql(sql);
-      setQuerySource(source);
 
       const queryRes = await executeSQL(sql);
       setResult(queryRes);
@@ -308,21 +303,6 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({
       {/* Resultados expandibles o estado pensando */}
       {!isMinimized && (hasContent || loading) && (
         <div className="ai-chat-content">
-          {/* Loading skeleton */}
-          {loading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 0' }}>
-              <img src={thinkingGif} alt="Pensando" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'contain' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
-                  {isAssignIntent(prompt) ? 'Calculando asignación óptima…' : 'Consultando base de datos…'}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>
-                  {isAssignIntent(prompt) ? 'El LLM está analizando tu solicitud…' : 'Generando SQL con IA…'}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Mensaje de Error */}
           {error && (
             <div
