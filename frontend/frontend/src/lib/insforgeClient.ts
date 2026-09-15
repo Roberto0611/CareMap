@@ -59,7 +59,7 @@ export async function executeSQL(sql: string): Promise<QueryResult> {
     finalSql += ' LIMIT 50';
   }
 
-  const endpoint = `${INSFORGE_URL}/api/database/advance/rawsql/unrestricted`;
+  const endpoint = `${INSFORGE_URL}/api/database/rpc/execute_readonly_sql`;
 
   const res = await fetch(endpoint, {
     method: 'POST',
@@ -67,7 +67,7 @@ export async function executeSQL(sql: string): Promise<QueryResult> {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${INSFORGE_API_KEY}`,
     },
-    body: JSON.stringify({ query: finalSql }),
+    body: JSON.stringify({ query_text: finalSql }),
   });
 
   if (!res.ok) {
@@ -76,12 +76,17 @@ export async function executeSQL(sql: string): Promise<QueryResult> {
   }
 
   const data = await res.json();
-  if (data.error) {
-    throw new Error(data.message || data.error);
+  
+  if (!Array.isArray(data)) {
+    if (data && data.error) {
+      throw new Error(data.message || data.error);
+    }
+    // Si la función retorna null o algo distinto a un array, devolvemos vacío
+    return { rows: [], rowCount: 0 };
   }
 
   return {
-    rows: data.rows || [],
-    rowCount: data.rowCount || (data.rows ? data.rows.length : 0),
+    rows: data,
+    rowCount: data.length,
   };
 }
