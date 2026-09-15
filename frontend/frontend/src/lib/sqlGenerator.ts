@@ -155,7 +155,6 @@ const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string | u
 export async function generateSQL(
   userPrompt: string
 ): Promise<{ sql: string; source: 'llm' | 'template' }> {
-  // 1. Intentar con OpenRouter API
   if (OPENROUTER_API_KEY) {
     try {
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -189,17 +188,17 @@ export async function generateSQL(
         console.warn('OpenRouter status:', res.status, await res.text());
       }
     } catch (e) {
-      console.warn('Fallo llamada a OpenRouter, recurriendo al motor de plantillas:', e);
+      console.warn('Fallo llamada a OpenRouter:', e);
     }
   }
 
-  // 2. Fallback inteligente basado en plantillas
+  // 2. Solo si el LLM falla o no hay API key, recurrir a plantillas
   const templateSql = matchTemplateQuery(userPrompt);
   if (templateSql) {
     return { sql: templateSql, source: 'template' };
   }
 
-  // 3. Consulta por defecto si no coincide
+  // 3. Consulta por defecto si todo falla
   return {
     sql: `SELECT zcta, county_name, state_abbr, score, poblacion FROM zcta_analytics WHERE score IS NOT NULL ORDER BY score ASC LIMIT 10;`,
     source: 'template',
